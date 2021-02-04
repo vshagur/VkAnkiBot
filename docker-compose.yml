@@ -1,0 +1,10 @@
+version: '3'
+services:
+  vkbot:
+    build:
+      context: ./
+      dockerfile: ./vkbot/Dockerfile
+    volumes:
+      - ./vkbot:/vkbot
+    environment:
+      VK_API_KEY: ${VK_API_KEY}
