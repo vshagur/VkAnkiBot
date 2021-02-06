@@ -6,5 +6,9 @@ services:
       dockerfile: ./vkbot/Dockerfile
     volumes:
       - ./vkbot:/vkbot
+    command:
+      - python
+      - 'client.py'
     environment:
       VK_API_KEY: ${VK_API_KEY}
+      VK_GROUP_ID: ${VK_GROUP_ID}
