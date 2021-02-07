@@ -4,6 +4,8 @@ import os
 
 import aiohttp
 
+# TODO: change debug mode to info
+# created vshagur@gmail.com, 2021-02-7
 logging.basicConfig(
     format='[%(levelname)s] %(asctime)s: %(message)s',
     level=logging.DEBUG
@@ -27,7 +29,7 @@ class VkBotLongPoll:
             if resp.status == 200:
                 return await resp.json()
             else:
-                logger.error(f'RESPONSE_CODE_NOT_200. Url: {url}. Code: {resp.status}.')
+                logger.error(f'RESPONSE_CODE_NOT_200. URL: {url}. CODE: {resp.status}.')
 
     async def update_longpoll_server(self):
 
@@ -35,18 +37,23 @@ class VkBotLongPoll:
               f'group_id={self.group_id}&v={self.version}&access_token={self.api_key}'
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    self.key = data['response']['key']
-                    self.server = data['response']['server']
-                    self.ts = data['response']['ts']
-                    # TODO: delete debug message
-                    # created vshagur@gmail.com, 2021-02-7
-                    logger.error(f'call update_connection_data: {data}')
-                else:
-                    logger.critical(
-                        f'RESPONSE_CODE_NOT_200. Url: {url}. Code: {resp.status}.')
+            while True:
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        self.key = data['response']['key']
+                        self.server = data['response']['server']
+                        self.ts = data['response']['ts']
+                        logger.info(
+                            f'LONGPOLLSERVER_DATA_UPDATED. SERVER: {self.server}. '
+                            f'KEY: {self.key}. TS: {self.ts}.'
+                        )
+                        break
+                    else:
+                        logger.critical(
+                            f'RESPONSE_CODE_NOT_200. URL: {url}. CODE: {resp.status}.'
+                        )
+                        continue
 
     async def run(self):
         await self.update_longpoll_server()
@@ -61,15 +68,17 @@ class VkBotLongPoll:
                 errors = data.get('failed', None)
                 # check errors
                 if errors:
+                    logger.error(
+                        f'LONGPOLL_SERVER_RETURN_ERROR. URL: {url}. RESPONSE: {data}.'
+                    )
                     if errors == 1:
                         self.ts = data.get('ts')
                     elif errors in (1, 2):
                         await self.update_longpoll_server()
 
                 self.ts = data.get('ts')
-                # TODO: delete debug message
-                # created vshagur@gmail.com, 2021-02-7
-                logger.error(f'call run: {data}')
+
+                logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
 
 
 def main(group_id, api_key, version, wait=25):
