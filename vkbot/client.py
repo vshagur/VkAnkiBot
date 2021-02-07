@@ -81,14 +81,16 @@ class VkBotLongPoll:
                 logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
 
 
-def main(group_id, api_key, version, wait=25):
+async def main():
+    group_id = os.getenv('VK_GROUP_ID')
+    api_key = os.getenv('VK_API_KEY')
+    version = os.getenv('VK_API_VERSION')
+    # TODO: delete wait, do by default
+    # created vshagur@gmail.com, 2021-02-7
+    wait = 5
     vk_bot = VkBotLongPoll(group_id, api_key, version, wait)
-    asyncio.run(vk_bot.run())
+    await vk_bot.run()
 
 
 if __name__ == '__main__':
-    group_id = os.getenv('VK_GROUP_ID')
-    api_key = os.getenv('VK_API_KEY')
-    version = 5.126
-    wait = 5
-    main(group_id, api_key, version, wait)
+    asyncio.run(main())

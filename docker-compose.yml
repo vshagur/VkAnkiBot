@@ -12,3 +12,4 @@ services:
     environment:
       VK_API_KEY: ${VK_API_KEY}
       VK_GROUP_ID: ${VK_GROUP_ID}
+      VK_API_VERSION: ${VK_API_VERSION}
