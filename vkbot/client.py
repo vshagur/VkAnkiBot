@@ -1,8 +1,14 @@
 import asyncio
+import logging
 import os
-import sys
 
 import aiohttp
+
+logging.basicConfig(
+    format='[%(levelname)s] %(asctime)s: %(message)s',
+    level=logging.DEBUG
+)
+logger = logging.getLogger("asyncio")
 
 
 class VkBotLongPoll:
@@ -21,9 +27,7 @@ class VkBotLongPoll:
             if resp.status == 200:
                 return await resp.json()
             else:
-                # TODO: add write warning to log
-                # created vshagur@gmail.com, 2021-02-6
-                pass
+                logger.error(f'RESPONSE_CODE_NOT_200. Url: {url}. Code: {resp.status}.')
 
     async def update_longpoll_server(self):
 
@@ -37,12 +41,12 @@ class VkBotLongPoll:
                     self.key = data['response']['key']
                     self.server = data['response']['server']
                     self.ts = data['response']['ts']
-                    print('call update_connection_data', data)
+                    # TODO: delete debug message
+                    # created vshagur@gmail.com, 2021-02-7
+                    logger.error(f'call update_connection_data: {data}')
                 else:
-                    # TODO: add write warning to log
-                    # created vshagur@gmail.com, 2021-02-6
-                    print(resp.status)
-                    sys.exit(1)
+                    logger.critical(
+                        f'RESPONSE_CODE_NOT_200. Url: {url}. Code: {resp.status}.')
 
     async def run(self):
         await self.update_longpoll_server()
@@ -63,8 +67,9 @@ class VkBotLongPoll:
                         await self.update_longpoll_server()
 
                 self.ts = data.get('ts')
-
-                print(data)
+                # TODO: delete debug message
+                # created vshagur@gmail.com, 2021-02-7
+                logger.error(f'call run: {data}')
 
 
 def main(group_id, api_key, version, wait=25):
