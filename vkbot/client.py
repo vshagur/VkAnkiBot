@@ -13,9 +13,27 @@ logging.basicConfig(
 logger = logging.getLogger("asyncio")
 
 
+class BotLogic:
+    def __init__(self, queue, group_id, api_key, version, wait=25):
+        self.queue = queue
+        self.group_id = group_id
+        self.version = version
+        self.wait = wait
+        self.api_key = api_key
+
+    async def run(self):
+        while True:
+            data = await self.queue.get()
+            # нужна ли здесь пауза? ведь обновления приходят с частотой wait,
+            # а мы постоянно обращаемся в цикле к очереди
+            if data is not None:
+                logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
+
+
 class VkBotLongPoll:
 
-    def __init__(self, group_id, api_key, version, wait=25):
+    def __init__(self, queue, group_id, api_key, version, wait=25):
+        self.queue = queue
         self.group_id = group_id
         self.version = version
         self.wait = wait
@@ -59,9 +77,7 @@ class VkBotLongPoll:
         await self.update_longpoll_server()
 
         async with aiohttp.ClientSession() as session:
-            # TODO: change for to while
-            # created vshagur@gmail.com, 2021-02-6
-            for _ in range(5):
+            while True:
                 url = f'{self.server}?act=a_check&key={self.key}&ts={self.ts}' \
                       f'&wait={self.wait}&access_token={self.api_key}'
                 data = await self.update_data(session, url)
@@ -77,8 +93,10 @@ class VkBotLongPoll:
                         await self.update_longpoll_server()
 
                 self.ts = data.get('ts')
-
-                logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
+                if data.get('updates'):
+                    # что прокидывать в логику? весь запрос или только updates&
+                    # нужны ли нам будут остальные данные, вроде keyboard или event_id?
+                    self.queue.put_nowait(data)
 
 
 async def main():
@@ -88,9 +106,15 @@ async def main():
     # TODO: delete wait, do by default
     # created vshagur@gmail.com, 2021-02-7
     wait = 5
-    vk_bot = VkBotLongPoll(group_id, api_key, version, wait)
-    await vk_bot.run()
+    queue = asyncio.Queue()
+    vk_bot = VkBotLongPoll(queue, group_id, api_key, version, wait)
+    handler = BotLogic(queue, group_id, api_key, version, wait)
+    await asyncio.gather(vk_bot.run(), handler.run())
 
 
 if __name__ == '__main__':
+    # так как циклы заменил на while, как правильно обработать KeyboardInterrupt?
+    # и нужно ли?
     asyncio.run(main())
+
+# стоит ли уже сейчас раскидать код по модулям? main, bot_logic, vk_bot?
