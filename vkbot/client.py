@@ -34,6 +34,9 @@ class BotLogic:
         await asyncio.sleep(0)
 
     async def run(self):
+        # restore game session if bot failed
+        await self.get_restore_game_session()
+
         while True:
             data = await self.queue.get()
 
