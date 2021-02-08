@@ -22,6 +22,17 @@ class BotLogic:
         self.wait = wait
         self.api_key = api_key
 
+    async def get_game_fingerprint(self):
+        # TODO: add code
+        # created vshagur@gmail.com, 2021-02-8
+        await asyncio.sleep(0)
+
+    async def get_restore_game_session(self):
+        fingerprint = await self.get_game_fingerprint()
+        # TODO: add code
+        # created vshagur@gmail.com, 2021-02-8
+        await asyncio.sleep(0)
+
     async def run(self):
         while True:
             data = await self.queue.get()
