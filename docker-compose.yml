@@ -8,7 +8,7 @@ services:
       - ./vkbot:/vkbot
     command:
       - python
-      - 'client.py'
+      - 'main.py'
     environment:
       VK_API_KEY: ${VK_API_KEY}
       VK_GROUP_ID: ${VK_GROUP_ID}

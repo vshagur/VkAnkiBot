@@ -1,47 +1,4 @@
-import asyncio
-import logging
-import os
-
-import aiohttp
-
-# TODO: change debug mode to info
-# created vshagur@gmail.com, 2021-02-7
-logging.basicConfig(
-    format='[%(levelname)s] %(asctime)s: %(message)s',
-    level=logging.DEBUG
-)
-logger = logging.getLogger("asyncio")
-
-
-class BotLogic:
-    def __init__(self, session, queue, group_id, api_key, version, wait=25):
-        self.session = session
-        self.queue = queue
-        self.group_id = group_id
-        self.version = version
-        self.wait = wait
-        self.api_key = api_key
-
-    async def get_game_fingerprint(self):
-        # TODO: add code
-        # created vshagur@gmail.com, 2021-02-8
-        await asyncio.sleep(0)
-
-    async def get_restore_game_session(self):
-        fingerprint = await self.get_game_fingerprint()
-        # TODO: add code
-        # created vshagur@gmail.com, 2021-02-8
-        await asyncio.sleep(0)
-
-    async def run(self):
-        # restore game session if bot failed
-        await self.get_restore_game_session()
-
-        while True:
-            data = await self.queue.get()
-
-            if data is not None:
-                logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
+from logger import logger
 
 
 class VkBotLongPoll:
@@ -110,25 +67,3 @@ class VkBotLongPoll:
 
             if data.get('updates'):
                 self.queue.put_nowait(data)
-
-
-async def main():
-    while True:
-        try:
-            async with aiohttp.ClientSession() as session:
-                group_id = os.getenv('VK_GROUP_ID')
-                api_key = os.getenv('VK_API_KEY')
-                version = os.getenv('VK_API_VERSION')
-                # TODO: delete wait, do by default
-                # created vshagur@gmail.com, 2021-02-7
-                wait = 5
-                queue = asyncio.Queue()
-                vk_bot = VkBotLongPoll(session, queue, group_id, api_key, version, wait)
-                handler = BotLogic(session, queue, group_id, api_key, version, wait)
-                await asyncio.gather(vk_bot.run(), handler.run())
-        finally:
-            continue
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
