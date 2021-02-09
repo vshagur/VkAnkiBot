@@ -1,10 +1,11 @@
 import logging
+import os
 
-# TODO: change debug mode to info
-# created vshagur@gmail.com, 2021-02-7
+DEBUG = os.getenv('VK_BOT_MODE')
+
 logging.basicConfig(
     format='[%(levelname)s] %(asctime)s: %(message)s',
-    level=logging.DEBUG
+    level=logging.DEBUG if DEBUG == '1' else logging.INFO
 )
 
 logger = logging.getLogger("asyncio")

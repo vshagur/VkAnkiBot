@@ -5,6 +5,7 @@ import aiohttp
 
 from bot_longpoll import VkBotLongPoll
 from logic import BotLogic
+from logger import logger
 
 
 async def main():
@@ -14,13 +15,19 @@ async def main():
                 group_id = os.getenv('VK_GROUP_ID')
                 api_key = os.getenv('VK_API_KEY')
                 version = os.getenv('VK_API_VERSION')
-                # TODO: delete wait, do by default
-                # created vshagur@gmail.com, 2021-02-7
-                wait = 5
+                debug = os.getenv('VK_BOT_MODE')
+                wait = 5 if debug == '1' else 25
                 queue = asyncio.Queue()
                 vk_bot = VkBotLongPoll(session, queue, group_id, api_key, version, wait)
                 handler = BotLogic(session, queue, group_id, api_key, version, wait)
+                logger.info('BOT_START')
+                logger.debug(f'BOT_PARAMETERS:')
+                logger.debug(f'GROUP_ID: {group_id} ')
+                logger.debug(f'API_KEY: {api_key} ')
+                logger.debug(f'VERSION: {version} ')
                 await asyncio.gather(vk_bot.run(), handler.run())
+        except Exception as err:
+            logger.error(f'BOT_RESTART_ERROR: {err}')
         finally:
             continue
 

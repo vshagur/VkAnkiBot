@@ -13,3 +13,4 @@ services:
       VK_API_KEY: ${VK_API_KEY}
       VK_GROUP_ID: ${VK_GROUP_ID}
       VK_API_VERSION: ${VK_API_VERSION}
+      VK_BOT_MODE: ${VK_BOT_MODE}
