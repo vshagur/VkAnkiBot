@@ -1,7 +1,7 @@
 import asyncio
 
 from logger import logger
-from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard
+from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard, get_quiz_keyboard
 
 
 class BotLogic:
@@ -47,6 +47,9 @@ class BotLogic:
             if peer_id in self.running_game_chats:
                 # игра запущена, обработать случаи:
                 # 1. пользователь остановил игру (/abort)
+                #    - запрос в базу данных об игре (для получения пользователя,
+                #      запустившего игру)
+                #    - проверка, что пользователь совпадает, если нет - ??? (подумать)
                 #    - запрос в базу данных на изменения статуса игры (finished)
                 #    - запрос в базу данных на получение результата игры
                 #    - удалить id чата из running_game_chats
@@ -89,7 +92,8 @@ class BotLogic:
                 pass
 
             # ============== отладка ================
-            keyboard = get_command_keyboard()
+            # keyboard = get_command_keyboard()
+            keyboard = get_quiz_keyboard(123456, ['one', 'two', 'three', 'four'], 1)
 
             payload = {
                 'keyboard': keyboard.get_keyboard(),

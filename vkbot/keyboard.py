@@ -106,9 +106,47 @@ class VkKeyboard(object):
 
 def get_command_keyboard():
     keyboard = VkKeyboard(one_time=True)
-    keyboard.add_button('Help', color=VkKeyboardColor.SECONDARY, payload='/help')
-    keyboard.add_button('Best players', color=VkKeyboardColor.SECONDARY, payload='/top')
     keyboard.add_button(
-        'Start the game', color=VkKeyboardColor.NEGATIVE, payload='/new'
+        'Help',
+        color=VkKeyboardColor.SECONDARY,
+        payload={'command': '/help'}
     )
+    keyboard.add_button(
+        'Best players',
+        color=VkKeyboardColor.SECONDARY,
+        payload={'command': '/top'}
+    )
+    keyboard.add_button(
+        'Start the game',
+        color=VkKeyboardColor.NEGATIVE,
+        payload={'command': '/new'}
+    )
+    return keyboard
+
+
+def get_quiz_keyboard(game_id, answers, correct_idx):
+    """
+    :param game_id: id игры
+    :param answers: список с вариантами ответов (текст на кнопках)
+    :param correct_idx: индекс правильного варианта
+    :return: объект VkKeyboard
+    """
+
+    keyboard = VkKeyboard(one_time=True)
+
+    for idx, answer in enumerate(answers):
+        result = True if idx == correct_idx else False
+        keyboard.add_button(
+            answer,
+            color=VkKeyboardColor.SECONDARY,
+            payload={'game_id': game_id, 'result': result}
+        )
+
+    # кнопка для остановки игры
+    keyboard.add_button(
+        'Canсel',
+        color=VkKeyboardColor.NEGATIVE,
+        payload={'command': '/abort'}
+    )
+
     return keyboard
