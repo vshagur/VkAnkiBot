@@ -14,7 +14,7 @@ class VkBotLongPoll:
         self.server = None
         self.ts = None
 
-    async def update_data(self, url):
+    async def get_update(self, url):
         async with self.session.get(url) as resp:
             if resp.status == 200:
                 return await resp.json()
@@ -50,7 +50,7 @@ class VkBotLongPoll:
         while True:
             url = f'{self.server}?act=a_check&key={self.key}&ts={self.ts}' \
                   f'&wait={self.wait}&access_token={self.api_key}'
-            data = await self.update_data(url)
+            data = await self.get_update(url)
             errors = data.get('failed', None)
 
             # check errors
@@ -63,6 +63,9 @@ class VkBotLongPoll:
                 elif errors in (1, 2):
                     await self.update_longpoll_server()
 
+                continue
+
+            # set new ts value and send data to queue
             self.ts = data.get('ts')
 
             if data.get('updates'):

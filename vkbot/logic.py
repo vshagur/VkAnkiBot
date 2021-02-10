@@ -32,28 +32,7 @@ class BotLogic:
 
         while True:
             data = await self.queue.get()
+            # TODO: add logic
+            # created vshagur@gmail.com, 2021-02-10
+            logger.debug(f'GET_UPDATE_FROM_QUEUE: {data}')
 
-            if data is not None:
-                logger.debug(f'LONGPOLL_SERVER_RESPONSE: {data}')
-                keyboard = VkKeyboard()
-                keyboard.add_text_button('primary', 'some text for button1',
-                                         "{\"button\": \"1\"}")
-                keyboard.add_text_button('negative', 'some text for button2',
-                                         "{\"button\": \"2\"}")
-                # keyboard = '{"buttons":[],"one_time":true}'
-                url = f'https://api.vk.com/method/messages.send'
-                payload = {
-                    'keyboard': keyboard.get_keyboard(),
-                    # 'keyboard': keyboard,
-                    'access_token': self.api_key,
-                    'group_id': self.group_id,
-                    'peer_id': data['updates'][0]['object']['peer_id'],
-                    'v': self.version,
-                    # 'random_id': uuid.uuid1().int >> 64,
-                    'random_id': data['updates'][0]['object']['random_id'],
-                    'message': 'hi, from bot',
-                }
-                async with self.session.post(url, data=payload) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        logger.debug(f'RESPONSE: {data}')

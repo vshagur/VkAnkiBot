@@ -28,6 +28,7 @@ async def main():
                 await asyncio.gather(vk_bot.run(), handler.run())
         except Exception as err:
             logger.error(f'BOT_RESTART_ERROR: {err}')
+            await session.close()
         finally:
             continue
 
