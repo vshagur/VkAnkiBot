@@ -1,14 +1,13 @@
 import json
 
+from enum import Enum
+
 # NOTE: Keyboard does not support inline mode
 #
 # Spied on here:
 # https://github.com/python273/vk_api/blob/master/vk_api/keyboard.py
 # Thank you, guys :)
-#
 
-
-from enum import Enum
 
 MAX_BUTTONS_ON_LINE = 5
 MAX_DEFAULT_LINES = 10
@@ -103,3 +102,13 @@ class VkKeyboard(object):
                 'label': label,
             }
         })
+
+
+def get_command_keyboard():
+    keyboard = VkKeyboard(one_time=True)
+    keyboard.add_button('Help', color=VkKeyboardColor.SECONDARY, payload='/help')
+    keyboard.add_button('Best players', color=VkKeyboardColor.SECONDARY, payload='/top')
+    keyboard.add_button(
+        'Start the game', color=VkKeyboardColor.NEGATIVE, payload='/new'
+    )
+    return keyboard
