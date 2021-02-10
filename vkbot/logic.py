@@ -1,7 +1,4 @@
 import asyncio
-import uuid
-
-from keyboard import VkKeyboard
 
 from logger import logger
 
@@ -31,8 +28,7 @@ class BotLogic:
         await self.get_restore_game_session()
 
         while True:
-            data = await self.queue.get()
+            update = await self.queue.get()
             # TODO: add logic
             # created vshagur@gmail.com, 2021-02-10
-            logger.debug(f'GET_UPDATE_FROM_QUEUE: {data}')
-
+            logger.debug(f'GET_UPDATE_FROM_QUEUE: {update}')

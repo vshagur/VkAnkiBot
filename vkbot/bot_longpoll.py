@@ -65,8 +65,10 @@ class VkBotLongPoll:
 
                 continue
 
-            # set new ts value and send data to queue
+            # set new ts value and send updates to queue
             self.ts = data.get('ts')
+            updates = data.get('updates')
 
-            if data.get('updates'):
-                self.queue.put_nowait(data)
+            if updates:
+                for update in updates:
+                    self.queue.put_nowait(update)
