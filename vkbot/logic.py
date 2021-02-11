@@ -1,10 +1,13 @@
 import asyncio
+import json
 
 from logger import logger
 from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard, get_quiz_keyboard
 
 
 class BotLogic:
+    BOT_COMMANDS = ('/abort', 'grade', '/help', '/new', '/start', '/top')
+
     def __init__(self, session, queue, group_id, api_key, version, wait=25):
         self.session = session
         self.queue = queue
@@ -37,12 +40,23 @@ class BotLogic:
 
         while True:
             update = await self.queue.get()
+
             # TODO: add logic
             # created vshagur@gmail.com, 2021-02-10
             logger.debug(f'GET_UPDATE_FROM_QUEUE: {update}')
 
-            # получить id беседы (peer_id) из update
-            peer_id = None  # заглушка
+            # =========== filter by type ============
+            resp_type = update.get('type')
+
+            if not resp_type or resp_type != 'message_new':
+                continue
+
+            # =========== parse =====================
+            data = update.get('object')
+            peer_id = data.get('peer_id')
+            random_id = data.get('random_id')
+            text = data.get('text')
+            command = self.parse_command(data)
 
             if peer_id in self.running_game_chats:
                 # игра запущена, обработать случаи:
@@ -92,27 +106,14 @@ class BotLogic:
                 pass
 
             # ============== отладка ================
-            # keyboard = get_command_keyboard()
-            # keyboard = get_quiz_keyboard(123456, ['one', 'two', 'three', 'four'], 1)
-            #
-            # payload = {
-            #     'keyboard': keyboard.get_keyboard(),
-            #     'peer_id': update['object']['peer_id'],
-            #     'random_id': update['object']['random_id'],
-            #     'message': 'здесь будет вопрос',
-            # }
-            # await self.send(payload)
-
-            peer_id = update['object']['peer_id']
-            random_id = update['object']['random_id']
-
+            logger.debug(f'user send command: {command}')
             await self.send_command_keyboard(peer_id, random_id)
             # ============== конец =================
 
     async def send(self, payload):
         url = f'https://api.vk.com/method/messages.send'
         payload.update(self.payload)
-        logger.debug(f'!!!from send {payload}')
+
         async with self.session.post(url, data=payload) as resp:
             if resp.status == 200:
                 content = await resp.json()
@@ -129,7 +130,27 @@ class BotLogic:
                         '"Help" - get help about the game\n'
                         '"Top Players" - Bring out the top 10 players\n'
                         '"Start game" - create a new game')
-
         }
-        logger.debug(f'!!!from send_command_keyboard {peer_id} {random_id}, {payload}')
+
         await self.send(payload)
+
+    def parse_command(self, data):
+        text = data.get('text')
+
+        try:
+            resp_payload = json.loads(data.get('payload'))
+        except (TypeError, json.JSONDecodeError) as err:
+            resp_payload = None
+        except Exception as err:
+            # добавил на время отладки, вдруг вылетит еще что
+            resp_payload = None
+            logger.error(f'NOT_AN_OBVIOUS_ERROR: {err}')
+
+        if resp_payload and resp_payload.get('command') in self.BOT_COMMANDS:
+            command = resp_payload.get('command')
+        elif text in self.BOT_COMMANDS:
+            command = text
+        else:
+            command = None
+
+        return command

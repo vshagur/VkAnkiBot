@@ -139,7 +139,7 @@ def get_quiz_keyboard(game_id, answers, correct_idx):
         keyboard.add_button(
             answer,
             color=VkKeyboardColor.SECONDARY,
-            payload={'game_id': game_id, 'result': result}
+            payload={'command': '/grade', 'game_id': game_id, 'result': result}
         )
 
     # кнопка для остановки игры
