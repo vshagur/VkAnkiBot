@@ -93,24 +93,43 @@ class BotLogic:
 
             # ============== отладка ================
             # keyboard = get_command_keyboard()
-            keyboard = get_quiz_keyboard(123456, ['one', 'two', 'three', 'four'], 1)
+            # keyboard = get_quiz_keyboard(123456, ['one', 'two', 'three', 'four'], 1)
+            #
+            # payload = {
+            #     'keyboard': keyboard.get_keyboard(),
+            #     'peer_id': update['object']['peer_id'],
+            #     'random_id': update['object']['random_id'],
+            #     'message': 'здесь будет вопрос',
+            # }
+            # await self.send(payload)
 
-            payload = {
-                'keyboard': keyboard.get_keyboard(),
-                'peer_id': update['object']['peer_id'],
-                'random_id': update['object']['random_id'],
-                'message': 'здесь будет вопрос',
-            }
+            peer_id = update['object']['peer_id']
+            random_id = update['object']['random_id']
 
-            await self.send(payload)
+            await self.send_command_keyboard(peer_id, random_id)
             # ============== конец =================
 
     async def send(self, payload):
         url = f'https://api.vk.com/method/messages.send'
         payload.update(self.payload)
-
+        logger.debug(f'!!!from send {payload}')
         async with self.session.post(url, data=payload) as resp:
             if resp.status == 200:
                 content = await resp.json()
             else:
                 logger.error(f'RESPONSE_CODE_NOT_200. URL: {url}. CODE: {resp.status}.')
+
+    async def send_command_keyboard(self, peer_id, random_id):
+        keyboard = get_command_keyboard()
+        payload = {
+            'keyboard': keyboard.get_keyboard(),
+            'peer_id': peer_id,
+            'random_id': random_id,
+            'message': ('Choose an action:\n'
+                        '"Help" - get help about the game\n'
+                        '"Top Players" - Bring out the top 10 players\n'
+                        '"Start game" - create a new game')
+
+        }
+        logger.debug(f'!!!from send_command_keyboard {peer_id} {random_id}, {payload}')
+        await self.send(payload)
