@@ -1,6 +1,7 @@
 import asyncio
 import json
 
+from api_client import ApiClient
 from logger import logger
 from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard, get_quiz_keyboard
 
@@ -20,8 +21,8 @@ class BotLogic:
             'group_id': self.group_id,
             'v': self.version,
         }
-
-        self.running_game_chats = []
+        self.api_client = ApiClient(session, group_id, api_key, version, wait=25)
+        self.running_game_chats = set()
 
     async def get_game_fingerprint(self):
         # TODO: add code
@@ -55,7 +56,8 @@ class BotLogic:
             data = update.get('object')
             peer_id = data.get('peer_id')
             random_id = data.get('random_id')
-            text = data.get('text')
+            from_id = data.get('from_id')
+            # text = data.get('text')
             command = self.parse_command(data)
 
             if peer_id in self.running_game_chats:
@@ -80,6 +82,7 @@ class BotLogic:
                 # 4. другие случаи (подумать на какие команды нужно послать сообещния,
                 #    а какие проигнорировать)
                 pass
+
             else:
                 # игра не запущена, обработать случаи:
                 # 1. пользователь добавился в группу (/start)
@@ -103,11 +106,71 @@ class BotLogic:
                 #    - отправить клавиатуру вопроса
                 # 5. другие сообщения (например, ответы с предыдущих вопросов или
                 # просто сообщения пользователей не относящиеся к игре)
-                pass
+                if command == '/start':
+                    # TODO: add getting full data about user by id
+                    # created vshagur@gmail.com, 2021-02-11
+                    await self.api_client.add_user(from_id)
+                    await self.send_command_keyboard(peer_id, random_id)
+
+                elif command == '/help':
+                    help_page = await self.api_client.get_help()
+                    payload = {
+                        'peer_id': peer_id,
+                        'random_id': random_id,
+                        'message': help_page,
+                    }
+                    await self.send(payload=payload)
+                    await self.send_command_keyboard(peer_id, random_id)
+
+                elif command == '/top':
+                    top_players = await self.api_client.get_top_players()
+                    payload = {
+                        'peer_id': peer_id,
+                        'random_id': random_id,
+                        'message': top_players,
+                    }
+                    await self.send(payload=payload)
+                    await self.send_command_keyboard(peer_id, random_id)
+
+                elif command == '/new':
+                    data = await self.api_client.create_new_game()
+                    game_id = data.get("game_id")
+                    payload = {
+                        'peer_id': peer_id,
+                        'random_id': random_id,
+                        'message': f'Create new game {game_id}',
+                    }
+                    await self.send(payload=payload)
+
+                    # TODO: подумать как сделать, чтобы не было повторений вопросов
+                    # created vshagur@gmail.com, 2021-02-11
+                    quiz = await self.api_client.get_quiz()
+
+                    answers = quiz.get('answers')
+                    correct_idx = quiz.get('correct_idx')
+                    question = quiz.get('question')
+
+                    keyboard = get_quiz_keyboard(game_id, answers, correct_idx)
+                    logger.debug(keyboard)
+
+                    payload = {
+                        'keyboard': keyboard.get_keyboard(),
+                        'peer_id': peer_id,
+                        'random_id': random_id,
+                        'message': f'{question}',
+                    }
+
+                    await self.send(payload=payload)
+                    self.running_game_chats.add(peer_id)
+
+                else:
+                    # TODO: подумать что делать в этом случае
+                    # created vshagur@gmail.com, 2021-02-11
+                    await self.send_command_keyboard(peer_id, random_id)
 
             # ============== отладка ================
-            logger.debug(f'user send command: {command}')
-            await self.send_command_keyboard(peer_id, random_id)
+            # logger.debug(f'user send command: {command}')
+            # await self.send_command_keyboard(peer_id, random_id)
             # ============== конец =================
 
     async def send(self, payload):
