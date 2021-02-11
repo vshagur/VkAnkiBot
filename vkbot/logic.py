@@ -81,7 +81,64 @@ class BotLogic:
                 #      в ветке для случая, когда игра не запущена
                 # 4. другие случаи (подумать на какие команды нужно послать сообещния,
                 #    а какие проигнорировать)
-                pass
+                if command == '/abort':
+                    try:
+                        resp_payload = json.loads(data.get('payload'))
+                        game_id = resp_payload.get('game_id')
+                    except (TypeError, json.JSONDecodeError) as err:
+                        logger.error(err)
+                        continue
+
+                    if game_id is None:
+                        logger.error(f'Not_correct_game_id: {game_id}')
+
+                        payload = {
+                            'peer_id': peer_id,
+                            'random_id': random_id,
+                            'message': f'Error. Game id is not correct: {game_id}',
+                        }
+
+                        logger.error(f'Not_correct_game_id: {game_id}')
+                        continue
+
+                    game_info = await self.api_client.get_game_info(game_id)
+                    game_initiator = game_info.get('user_id')
+
+                    if game_initiator == from_id:
+                        payload = {'status': 'done'}
+
+                        await self.api_client.update_game_info(game_id, payload)
+                        results = await self.api_client.get_result(game_id)
+
+                        self.running_game_chats.remove(peer_id)
+
+                        payload = {
+                            'peer_id': peer_id,
+                            'random_id': random_id,
+                            # TODO: format message
+                            # created vshagur@gmail.com, 2021-02-11
+                            'message': f'Game results: {results}',
+                        }
+
+                        await self.send(payload=payload)
+                        await self.send_command_keyboard(peer_id, random_id)
+
+                    else:
+                        payload = {
+                            'peer_id': peer_id,
+                            'random_id': random_id,
+                            'message': 'Only the user who started the game can stop it.',
+                        }
+                        await self.send(payload=payload)
+                        continue
+
+                elif command == '/abort':
+                    pass
+
+                else:
+                    pass
+
+
 
             else:
                 # игра не запущена, обработать случаи:

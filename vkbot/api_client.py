@@ -28,7 +28,17 @@ class ApiClient:
 
     async def create_new_game(self):
         await asyncio.sleep(0)
-        logger.debug(f'send create_new_game request to db')
+        logger.debug(f'create new game into db')
+        return {'game_id': 12345}
+
+    async def get_game_info(self, game_id):
+        await asyncio.sleep(0)
+        logger.debug(f'get game info from db')
+        return {'game_id': 12345, 'user_id': 436740675}
+
+    async def update_game_info(self, game_id, payload):
+        await asyncio.sleep(0)
+        logger.debug(f'update game info into db')
         return {'game_id': 12345}
 
     async def get_quiz(self):
@@ -39,3 +49,8 @@ class ApiClient:
             'answers': ['human', 'dog', 'cat'],
             'correct_idx': 1
         }
+
+    async def get_result(self, game_id):
+        await asyncio.sleep(0)
+        logger.debug(f'get result game by game_id from db')
+        return {'game_id': game_id, 'winтers': ['Ivan', 'Oleg'], 'score': 5}

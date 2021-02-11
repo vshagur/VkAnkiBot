@@ -146,7 +146,7 @@ def get_quiz_keyboard(game_id, answers, correct_idx):
     keyboard.add_button(
         'Canсel',
         color=VkKeyboardColor.NEGATIVE,
-        payload={'command': '/abort'}
+        payload={'command': '/abort', 'game_id': game_id}
     )
 
     return keyboard
