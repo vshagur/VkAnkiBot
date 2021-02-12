@@ -19,7 +19,7 @@ class ApiClient:
     async def get_help(self):
         await asyncio.sleep(0)
         logger.debug(f'get help page from db')
-        return 'help page'
+        return {'text': 'Very long game description ...'}
 
     async def get_top_players(self):
         await asyncio.sleep(0)
