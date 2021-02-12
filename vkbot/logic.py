@@ -3,7 +3,7 @@ import json
 
 from api_client import ApiClient
 from logger import logger
-from commands import Abort, Grade, Help, New, Start, Top
+from commands import Abort, Grade, Help, New, Start, Top, NotExistCommand
 
 
 class BotLogic:
@@ -14,8 +14,10 @@ class BotLogic:
         '/new': New,
         '/start': Start,
         '/top': Top,
-        None: Start,
+        None: NotExistCommand,
     }
+
+    MAX_QUESTION_COUNT = 10
 
     def __init__(self, session, queue, group_id, api_key, version, wait=25):
         self.session = session
@@ -70,6 +72,7 @@ class BotLogic:
             'random_id': data.get('random_id'),
             'from_id': data.get('from_id'),
             'command': self.parse_command(data),
+            'payload': data.get('payload'),
         }
         return context
 

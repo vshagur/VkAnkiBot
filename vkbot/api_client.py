@@ -24,7 +24,7 @@ class ApiClient:
     async def get_top_players(self):
         await asyncio.sleep(0)
         logger.debug(f'get top players from db')
-        return 'top players'
+        return {'users': {'Ivan': 20, 'Oleg': 19}}
 
     async def create_new_game(self):
         await asyncio.sleep(0)

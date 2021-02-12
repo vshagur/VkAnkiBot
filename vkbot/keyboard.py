@@ -124,7 +124,7 @@ def get_command_keyboard():
     return keyboard
 
 
-def get_quiz_keyboard(game_id, answers, correct_idx):
+def get_quiz_keyboard(user_id, game_id, answers, correct_idx):
     """
     :param game_id: id игры
     :param answers: список с вариантами ответов (текст на кнопках)
@@ -146,7 +146,7 @@ def get_quiz_keyboard(game_id, answers, correct_idx):
     keyboard.add_button(
         'Canсel',
         color=VkKeyboardColor.NEGATIVE,
-        payload={'command': '/abort', 'game_id': game_id}
+        payload={'command': '/abort', 'game_id': game_id, 'user_id': user_id}
     )
 
     return keyboard
