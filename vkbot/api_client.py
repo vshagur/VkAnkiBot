@@ -34,7 +34,7 @@ class ApiClient:
     async def get_game_info(self, game_id):
         await asyncio.sleep(0)
         logger.debug(f'get game info from db')
-        return {'game_id': 12345, 'user_id': 436740675}
+        return {'game_id': 12345, 'user_id': 436740675, }
 
     async def update_game_info(self, game_id, payload):
         await asyncio.sleep(0)
@@ -47,10 +47,15 @@ class ApiClient:
         return {
             'question': 'who are you?',
             'answers': ['human', 'dog', 'cat'],
-            'correct_idx': 1
+            'correct_idx': 1,
+            'timeout' : 5, # move to settings
         }
 
     async def get_result(self, game_id):
         await asyncio.sleep(0)
         logger.debug(f'get result game by game_id from db')
         return {'game_id': game_id, 'winтers': ['Ivan', 'Oleg'], 'score': 5}
+
+    async def save_round_info(self, game_id, round, winner):
+        logger.debug(f'add round info to db')
+        await asyncio.sleep(0)

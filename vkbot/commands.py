@@ -9,6 +9,30 @@ class Command:
     """Base class for all commands"""
 
     @classmethod
+    async def activate_timer(cls, bot_logic, game_id, round_id, from_id, peer_id,
+                             random_id, user_id, timeout, command):
+        payload = {
+            'command': command,
+            'game_id': game_id,
+            'round_id': round_id,
+            'user_id': user_id,
+        }
+
+        timer = {
+            'object': {
+                'peer_id': peer_id,
+                'random_id': random_id,
+                'from_id': from_id,
+                'payload': json.dumps(payload),
+                'date': timeout,
+            },
+            'type': 'message_new'
+        }
+
+        await asyncio.sleep(1)
+        bot_logic.queue.put_nowait(timer)
+
+    @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
         await asyncio.sleep(0)
 
@@ -110,17 +134,6 @@ class Abort(Command):
             await cls.send(bot_logic, payload)
 
 
-class Grade(Command):
-
-    @classmethod
-    async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        await asyncio.sleep(0)
-
-    @classmethod
-    async def execute_if_wait_game(cls, bot_logic, update_content):
-        await asyncio.sleep(0)
-
-
 class Help(Command):
 
     @classmethod
@@ -152,6 +165,9 @@ class Start(Command):
 
         await bot_logic.api_client.add_user(from_id)
         await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+
+    # TODO: добавить логику для запущеной игры
+    # created vshagur@gmail.com, 2021-02-12
 
 
 class Top(Command):
@@ -220,8 +236,10 @@ class New(Command):
         answers = quiz.get('answers')
         correct_idx = quiz.get('correct_idx')
         question = quiz.get('question')
+        timeout = quiz.get('timeout')
+        round_id = 1
 
-        keyboard = get_quiz_keyboard(from_id, game_id, answers, correct_idx)
+        keyboard = get_quiz_keyboard(from_id, game_id, answers, correct_idx, round_id)
 
         payload = {
             'keyboard': keyboard.get_keyboard(),
@@ -233,7 +251,144 @@ class New(Command):
         await cls.send(bot_logic, payload)
 
         bot_logic.running_games[peer_id] = {
-            'round': 1,
+            'round_id': round_id,
             'user_id': from_id,
             'game_id': game_id,
+            'participants': [],
         }
+
+        command = '/wait'
+
+        await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
+                                     random_id, from_id, timeout, command)
+
+
+class Grade(Command):
+
+    @classmethod
+    async def execute_if_game_in_progress(cls, bot_logic, update_content):
+
+        from_id = update_content['from_id']
+        peer_id = update_content['peer_id']
+        date = update_content['date']
+
+        try:
+            resp_payload = json.loads(update_content.get('payload'))
+            resp_game_id = resp_payload.get('game_id')
+            resp_result = resp_payload.get('result')
+
+            if resp_game_id is None or resp_result is None:
+                logger.error(f'Not_correct_game_id: {resp_game_id}')
+                await asyncio.sleep(0)
+                return
+
+        except (TypeError, json.JSONDecodeError) as err:
+            logger.error(err)
+            await asyncio.sleep(0)
+            return
+
+        if isinstance(resp_result, bool) and resp_result:
+            bot_logic.running_games[peer_id]['participants'].append((date, from_id))
+        else:
+            pass
+
+        await asyncio.sleep(0)
+
+
+class Wait(Command):
+
+    @classmethod
+    async def execute_if_game_in_progress(cls, bot_logic, update_content):
+        timeout = update_content['date']
+        payload = json.loads(update_content['payload'])
+
+        command = '/move' if timeout == 0 else payload.get('command')
+        game_id = payload.get('game_id')
+        round_id = payload.get('round_id')
+        from_id = update_content['from_id']
+        peer_id = update_content['peer_id']
+        random_id = update_content['random_id']
+        timeout -= 1
+
+        await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
+                                     random_id, from_id, timeout, command)
+
+    @classmethod
+    async def execute_if_wait_game(cls, bot_logic, update_content):
+        await asyncio.sleep(0)
+
+
+class Move(Command):
+
+    @classmethod
+    async def execute_if_game_in_progress(cls, bot_logic, update_content):
+        payload = json.loads(update_content['payload'])
+        game_id = payload.get('game_id')
+        peer_id = update_content['peer_id']
+        random_id = update_content['random_id']
+        from_id = update_content['from_id']
+        round_id = payload.get('round_id')
+
+        # определить победителя раунда
+        participants = bot_logic.running_games[peer_id]['participants']
+
+        if participants:
+            winner = sorted(participants, reverse=True).pop()[-1]
+        else:
+            winner = 0
+
+        # сохранить результат в базе данных
+        await bot_logic.api_client.save_round_info(game_id, round_id, winner)
+
+        if round_id > bot_logic.MAX_QUESTION_COUNT:
+
+            # обнулилить данные для раунда
+            del bot_logic.running_games[peer_id]
+
+            payload = {'status': 'done'}
+
+            await bot_logic.api_client.update_game_info(game_id, payload)
+            result = await bot_logic.api_client.get_result(game_id)
+
+            payload = {
+                'peer_id': peer_id,
+                'random_id': random_id,
+                # TODO: format message
+                # created vshagur@gmail.com, 2021-02-11
+                'message': f'Game finished. Results: {result}',
+            }
+
+            await cls.send(bot_logic, payload)
+            await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+
+        else:
+            bot_logic.running_games[peer_id]['participants'] = []
+            bot_logic.running_games[peer_id]['round_id'] += 1
+            round_id += 1
+            # получить новые данные
+            quiz = await bot_logic.api_client.get_quiz()
+
+            answers = quiz.get('answers')
+            correct_idx = quiz.get('correct_idx')
+            question = quiz.get('question')
+            timeout = quiz.get('timeout')
+
+            keyboard = get_quiz_keyboard(from_id, game_id, answers, correct_idx, round_id)
+
+            payload = {
+                'keyboard': keyboard.get_keyboard(),
+                'peer_id': peer_id,
+                'random_id': random_id,
+                'message': f'{question}',
+            }
+
+            await cls.send(bot_logic, payload)
+
+            command = '/wait'
+
+            await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
+                                         random_id, from_id, timeout, command)
+
+    @classmethod
+    async def execute_if_wait_game(cls, bot_logic, update_content):
+        await asyncio.sleep(0)

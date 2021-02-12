@@ -124,7 +124,7 @@ def get_command_keyboard():
     return keyboard
 
 
-def get_quiz_keyboard(user_id, game_id, answers, correct_idx):
+def get_quiz_keyboard(user_id, game_id, answers, correct_idx, round):
     """
     :param game_id: id игры
     :param answers: список с вариантами ответов (текст на кнопках)
@@ -139,7 +139,12 @@ def get_quiz_keyboard(user_id, game_id, answers, correct_idx):
         keyboard.add_button(
             answer,
             color=VkKeyboardColor.SECONDARY,
-            payload={'command': '/grade', 'game_id': game_id, 'result': result}
+            payload={
+                'command': '/grade',
+                'game_id': game_id,
+                'result': result,
+                'round':round,
+            }
         )
 
     # кнопка для остановки игры
