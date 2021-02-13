@@ -48,7 +48,7 @@ class ApiClient:
             'question': 'who are you?',
             'answers': ['human', 'dog', 'cat'],
             'correct_idx': 1,
-            'timeout' : 5, # move to settings
+            'timeout': 5,  # move to settings
         }
 
     async def get_result(self, game_id):
