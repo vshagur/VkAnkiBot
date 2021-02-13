@@ -14,6 +14,7 @@ services:
       VK_GROUP_ID: ${VK_GROUP_ID}
       VK_API_VERSION: ${VK_API_VERSION}
       VK_BOT_MODE: ${VK_BOT_MODE}
+      DB_URL: ${DB_URL}
     depends_on:
       - server
       - postgres
@@ -39,3 +40,5 @@ services:
       - db/database.env
     ports:
       - ${POSTGRES_PORT:-5432}:5432
+    volumes:
+      - ./db/data:/var/lib/postgresql/data

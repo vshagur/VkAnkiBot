@@ -1,4 +1,7 @@
 import asyncio
+import os
+
+from urllib.parse import urljoin
 
 from logger import logger
 
@@ -11,15 +14,20 @@ class ApiClient:
         self.version = version
         self.wait = wait
         self.api_key = api_key
+        self.url = os.getenv('DB_URL')
 
     async def add_user(self, user_id):
         await asyncio.sleep(0)
         logger.debug(f'user {user_id} add to db')
 
     async def get_help(self):
-        await asyncio.sleep(0)
-        logger.debug(f'get help page from db')
-        return {'text': 'Very long game description ...'}
+        url = urljoin(self.url, '/docs/help')
+
+        async with self.session.get(url) as resp:
+            if resp.status == 200:
+                return await resp.json()
+            else:
+                logger.error('BAD_RESPONSE_STATUS_CODE: {resp.status} from {resource}')
 
     async def get_top_players(self):
         await asyncio.sleep(0)
