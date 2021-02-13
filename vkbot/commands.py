@@ -8,6 +8,8 @@ from logger import logger
 class Command:
     """Base class for all commands"""
 
+    SLEEP_TIME = 0.01
+
     @classmethod
     async def execute(cls, bot_logic, update_content):
         if cls.is_running(bot_logic, update_content):
@@ -48,7 +50,7 @@ class Command:
             'type': 'message_new'
         }
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(cls.SLEEP_TIME)
         bot_logic.queue.put_nowait(timer)
 
     @classmethod
@@ -324,14 +326,14 @@ class Wait(Command):
         # parse parameters
         timeout = update_content['date']
         payload = json.loads(update_content['payload'])
-        command = '/move' if timeout == 0 else payload.get('command')
+        command = '/move' if timeout <= 0 else payload.get('command')
         game_id = payload.get('game_id')
         round_id = payload.get('round_id')
         from_id = update_content['from_id']
         peer_id = update_content['peer_id']
         random_id = update_content['random_id']
 
-        timeout -= 1
+        timeout -= cls.SLEEP_TIME
 
         # set new timer
         await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
