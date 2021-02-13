@@ -16,7 +16,7 @@ services:
       VK_BOT_MODE: ${VK_BOT_MODE}
     depends_on:
       - server
-      - db
+      - postgres
   server:
     build:
       context: ./
@@ -25,15 +25,16 @@ services:
       - ./server:/server
     command:
       - python
-      - 'main.py'
+      - 'api/main.py'
     environment:
       VK_BOT_MODE: ${VK_BOT_MODE}
     ports:
       - 8080:8080
     depends_on:
-      - db
-  db:
+      - postgres
+  postgres:
     image: postgres:13.2-alpine
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres

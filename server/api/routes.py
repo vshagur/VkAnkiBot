@@ -1,4 +1,4 @@
-# server/routes.py
+# server/api/routes.py
 from views import index
 
 

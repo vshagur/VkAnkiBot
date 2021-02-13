@@ -1,4 +1,4 @@
-# server/main.py
+# server/api/main.py
 from aiohttp import web
 from routes import setup_routes
 

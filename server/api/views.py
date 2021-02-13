@@ -1,4 +1,4 @@
-# server/views.py
+# server/api/views.py
 from aiohttp import web
 
 
