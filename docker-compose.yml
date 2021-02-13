@@ -14,3 +14,26 @@ services:
       VK_GROUP_ID: ${VK_GROUP_ID}
       VK_API_VERSION: ${VK_API_VERSION}
       VK_BOT_MODE: ${VK_BOT_MODE}
+    depends_on:
+      - server
+      - db
+  server:
+    build:
+      context: ./
+      dockerfile: ./server/Dockerfile
+    volumes:
+      - ./server:/server
+    command:
+      - python
+      - 'main.py'
+    environment:
+      VK_BOT_MODE: ${VK_BOT_MODE}
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+  db:
+    image: postgres:13.2-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
