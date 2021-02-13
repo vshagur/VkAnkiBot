@@ -48,12 +48,14 @@ class VkBotLongPoll:
         await self.update_longpoll_server()
 
         while True:
+            # get updates
             url = f'{self.server}?act=a_check&key={self.key}&ts={self.ts}' \
                   f'&wait={self.wait}&access_token={self.api_key}'
             data = await self.get_update(url)
-            errors = data.get('failed', None)
 
             # check errors
+            errors = data.get('failed', None)
+
             if errors:
                 logger.error(
                     f'LONGPOLL_SERVER_RETURN_ERROR. URL: {url}. RESPONSE: {data}.'
@@ -69,6 +71,7 @@ class VkBotLongPoll:
             self.ts = data.get('ts')
             updates = data.get('updates')
 
+            # add updates to queue
             if updates:
                 for update in updates:
                     self.queue.put_nowait(update)
