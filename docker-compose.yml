@@ -34,7 +34,8 @@ services:
       - postgres
   postgres:
     image: postgres:13.2-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+    restart: always
+    env_file:
+      - db/database.env
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
