@@ -171,7 +171,7 @@ class Start(Command):
 
     @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        # TODO: добавить логику для запущеной игры
+        # TODO: add logic
         # created vshagur@gmail.com, 2021-02-12
         await asyncio.sleep(0)
 
@@ -190,10 +190,6 @@ class Start(Command):
 
 
 class Top(Command):
-
-    @classmethod
-    async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        await asyncio.sleep(0)
 
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
@@ -340,10 +336,6 @@ class Wait(Command):
         # set new timer
         await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
                                      random_id, from_id, timeout, command)
-
-    @classmethod
-    async def execute_if_wait_game(cls, bot_logic, update_content):
-        await asyncio.sleep(0)
 
 
 class Move(Command):
