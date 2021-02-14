@@ -112,8 +112,8 @@ class Abort(Command):
         # check that the user can stop the game
         if user_id == from_id and resp_game_id == game_id:
             # update the data about the game in the database (the game is over)
-            payload = {'status': 'done'}
-            await bot_logic.api_client.update_game_info(game_id, payload)
+            payload = {'status': 'done', 'game_id': game_id}
+            await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
             result = await bot_logic.api_client.get_result(game_id)
@@ -127,7 +127,7 @@ class Abort(Command):
                 'random_id': random_id,
                 # TODO: format message
                 # created vshagur@gmail.com, 2021-02-11
-                'message': f'Game aborted. Results: {result}',
+                'message': f'Game aborted.\n{result}',
             }
 
             await cls.send(bot_logic, payload)
@@ -173,18 +173,18 @@ class Start(Command):
 
     @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        # TODO: add logic
-        # created vshagur@gmail.com, 2021-02-12
-        await asyncio.sleep(0)
+        await cls.execute_if_wait_game(bot_logic, update_content)
 
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
-        # add new user to db
+        """add new user to db"""
+
         # TODO: add getting full data about user by id
         # created vshagur@gmail.com, 2021-02-11
         from_id = update_content['from_id']
         peer_id = update_content['peer_id']
         random_id = update_content['random_id']
+
         await bot_logic.api_client.add_user(from_id)
 
         # send command keyboard to user
@@ -204,12 +204,13 @@ class Top(Command):
         # TODO: add correct format
         # created vshagur@gmail.com, 2021-02-12
         users = top_players.get('users')
-        report = '\n'.join(f'{num}. {user}' for num, user in enumerate(users, 1))
+        text = 'Best players.\n'
+        text += '\n'.join(f'{num}. {user}' for num, user in enumerate(users, 1))
 
         payload = {
             'peer_id': peer_id,
             'random_id': random_id,
-            'message': report,
+            'message': text,
         }
 
         await cls.send(bot_logic, payload)
@@ -232,20 +233,22 @@ class New(Command):
 
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
-        # add a new game to the db
-        data = await bot_logic.api_client.create_new_game()
-
-        # send notification to user
-        game_id = data.get("game_id")
         peer_id = update_content['peer_id']
         random_id = update_content['random_id']
         from_id = update_content['from_id']
+
+        # add a new game to the db
+        data = await bot_logic.api_client.create_new_game(peer_id, from_id)
+
+        # send notification to user
+        game_id = data.get('game_id')
 
         payload = {
             'peer_id': peer_id,
             'random_id': random_id,
             'message': f'User {from_id} created a new game: {game_id}',
         }
+
         await cls.send(bot_logic, payload)
 
         # get a question from the db
@@ -368,8 +371,8 @@ class Move(Command):
             del bot_logic.running_games[peer_id]
 
             # update the game data in the db (the game is over)
-            payload = {'status': 'done'}
-            await bot_logic.api_client.update_game_info(game_id, payload)
+            payload = {'status': 'done', 'game_id': game_id}
+            await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
             result = await bot_logic.api_client.get_result(game_id)
@@ -380,7 +383,7 @@ class Move(Command):
                 'random_id': random_id,
                 # TODO: format message
                 # created vshagur@gmail.com, 2021-02-11
-                'message': f'Game finished. Results: {result}',
+                'message': f'Game finished.\n{result}',
             }
 
             await cls.send(bot_logic, payload)
