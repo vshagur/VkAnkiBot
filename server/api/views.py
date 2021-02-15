@@ -8,7 +8,7 @@ from logger import logger
 QUESTIONS = (
     {
         'question': 'who are you?',
-        'answers': ['human', 'dog', 'cat'],
+        'answers': ['human', 'bird', 'fish'],
         'correct_idx': 1,
         'timeout': 5,  # move to settings
     },
@@ -20,20 +20,20 @@ QUESTIONS = (
     },
     {
         'question': 'who meows?',
-        'answers': ['human', 'dog', 'cat'],
+        'answers': ['snake ', 'dog', 'cat'],
         'correct_idx': 3,
         'timeout': 5,  # move to settings
     },
     {
         'question': 'Who catches mice??',
-        'answers': ['human', 'dog', 'cat'],
+        'answers': ['mosquito', 'worm ', 'cat'],
         'correct_idx': 3,
         'timeout': 5,  # move to settings
     },
     {
         'question': 'Who is following the trail of criminals?',
-        'answers': ['human', 'dog', 'cat'],
-        'correct_idx': 2,
+        'answers': ['police', 'cook ', 'garcon'],
+        'correct_idx': 1,
         'timeout': 5,  # move to settings
     }
 )
