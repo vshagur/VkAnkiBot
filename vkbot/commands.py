@@ -5,6 +5,18 @@ from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard, get_quiz
 from logger import logger
 
 
+class Game:
+    def __init__(self, game_id, user_id, round_id=1):
+        self.game_id = game_id
+        self.user_id = user_id  # game owner
+        self.round_id = round_id
+        self.participants = {}  # key - user_id, value - (data, result)
+
+    def new_round(self):
+        self.round_id += 1
+        self.participants = {}
+
+
 class Command:
     """Base class for all commands"""
 
@@ -95,36 +107,30 @@ class Abort(Command):
 
             if resp_game_id is None:
                 logger.error(f'Not_correct_game_id: {resp_game_id}')
-                await asyncio.sleep(0)
                 return
 
         except (TypeError, json.JSONDecodeError) as err:
             logger.error(err)
-            await asyncio.sleep(0)
             return
 
-        from_id = update_content['from_id']
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-        user_id = bot_logic.running_games[peer_id]['user_id']
-        game_id = bot_logic.running_games[peer_id]['game_id']
+        game = bot_logic.running_games.get(update_content.get('peer_id'))
 
         # check that the user can stop the game
-        if user_id == from_id and resp_game_id == game_id:
+        if game.user_id == update_content.get('from_id') and resp_game_id == game.game_id:
             # update the data about the game in the database (the game is over)
-            payload = {'status': 'done', 'game_id': game_id}
+            payload = {'status': 'done', 'game_id': game.game_id}
             await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
-            result = await bot_logic.api_client.get_result(game_id)
+            result = await bot_logic.api_client.get_result(game.game_id)
 
             # clear game data
-            del bot_logic.running_games[peer_id]
+            del bot_logic.running_games[update_content.get('peer_id')]
 
             # send game report to user
             payload = {
-                'peer_id': peer_id,
-                'random_id': random_id,
+                'peer_id': update_content.get('peer_id'),
+                'random_id': update_content.get('random_id'),
                 # TODO: format message
                 # created vshagur@gmail.com, 2021-02-11
                 'message': f'Game aborted.\n{result}',
@@ -133,13 +139,17 @@ class Abort(Command):
             await cls.send(bot_logic, payload)
 
             # send command keyboard to user
-            await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+            await cls.send_command_keyboard(
+                bot_logic,
+                update_content.get('peer_id'),
+                update_content.get('random_id')
+            )
 
         else:
             # send notification to user
             payload = {
-                'peer_id': peer_id,
-                'random_id': random_id,
+                'peer_id': update_content.get('peer_id'),
+                'random_id': update_content.get('random_id'),
                 'message': 'Only the user who started the game can stop it.',
             }
             await cls.send(bot_logic, payload)
@@ -153,20 +163,20 @@ class Help(Command):
         data = await bot_logic.api_client.get_help()
 
         # send help page to user
-        help_page = data.get('text')
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-
         payload = {
-            'peer_id': peer_id,
-            'random_id': random_id,
-            'message': help_page,
+            'peer_id': update_content.get('peer_id'),
+            'random_id': update_content.get('random_id'),
+            'message': data.get('text'),
         }
 
         await cls.send(bot_logic, payload)
 
         # send command keyboard
-        await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+        await cls.send_command_keyboard(
+            bot_logic,
+            update_content.get('peer_id'),
+            update_content.get('random_id')
+        )
 
 
 class Start(Command):
@@ -181,14 +191,15 @@ class Start(Command):
 
         # TODO: add getting full data about user by id
         # created vshagur@gmail.com, 2021-02-11
-        from_id = update_content['from_id']
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
 
-        await bot_logic.api_client.add_user(from_id)
+        await bot_logic.api_client.add_user(update_content.get('from_id'))
 
         # send command keyboard to user
-        await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+        await cls.send_command_keyboard(
+            bot_logic,
+            update_content.get('peer_id'),
+            update_content.get('random_id')
+        )
 
 
 class Top(Command):
@@ -196,14 +207,15 @@ class Top(Command):
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
         # get report from db
-        top_players = await bot_logic.api_client.get_top_players()
+        data = await bot_logic.api_client.get_top_players()
 
         # send report to user
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
+        peer_id = update_content.get('peer_id')
+        random_id = update_content.get('random_id')
+        users = data.get('users')
+
         # TODO: add correct format
         # created vshagur@gmail.com, 2021-02-12
-        users = top_players.get('users')
         text = 'Best players.\n'
         text += '\n'.join(f'{num}. {user}' for num, user in enumerate(users, 1))
 
@@ -224,25 +236,30 @@ class NotExistCommand(Command):
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
         # send command keyboard to user
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-        await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+        await cls.send_command_keyboard(
+            bot_logic,
+            update_content.get('peer_id'),
+            update_content.get('random_id')
+        )
 
 
 class New(Command):
 
     @classmethod
     async def execute_if_wait_game(cls, bot_logic, update_content):
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-        from_id = update_content['from_id']
+        peer_id = update_content.get('peer_id')
+        random_id = update_content.get('random_id')
+        from_id = update_content.get('from_id')
 
         # add a new game to the db
         data = await bot_logic.api_client.create_new_game(peer_id, from_id)
-
-        # send notification to user
         game_id = data.get('game_id')
 
+        # create game object and add it to temp store
+        game = Game(game_id, from_id)
+        bot_logic.running_games[peer_id] = game
+
+        # send notification to user
         payload = {
             'peer_id': peer_id,
             'random_id': random_id,
@@ -257,46 +274,39 @@ class New(Command):
         quiz = await bot_logic.api_client.get_quiz()
 
         # create keyboard
-        answers = quiz.get('answers')
-        correct_idx = quiz.get('correct_idx')
-        question = quiz.get('question')
-        timeout = quiz.get('timeout')
-        round_id = 1
-        keyboard = get_quiz_keyboard(from_id, game_id, answers, correct_idx, round_id)
+        keyboard = get_quiz_keyboard(
+            from_id,
+            game_id,
+            quiz.get('answers'),
+            quiz.get('correct_idx'),
+            game.round_id
+        )
 
         # ask a question
         payload = {
             'keyboard': keyboard.get_keyboard(),
             'peer_id': peer_id,
             'random_id': random_id,
-            'message': f'{question}',
+            'message': f'{quiz.get("question")}',
         }
 
         await cls.send(bot_logic, payload)
 
-        # clear data for round
-        bot_logic.running_games[peer_id] = {
-            'round_id': round_id,
-            'user_id': from_id,
-            'game_id': game_id,
-            'participants': [],
-        }
-
         # set timer
         command = '/wait'
-        await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
-                                     random_id, from_id, timeout, command)
+        await Command.activate_timer(
+            bot_logic, game_id, game.round_id, from_id, peer_id, random_id, from_id,
+            quiz.get('timeout'), command
+        )
 
 
 class Grade(Command):
 
     @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
-
         # parse the result of the round
-        from_id = update_content['from_id']
-        peer_id = update_content['peer_id']
-        date = update_content['date']
+        from_id = update_content.get('from_id')
+        peer_id = update_content.get('peer_id')
 
         try:
             resp_payload = json.loads(update_content.get('payload'))
@@ -305,17 +315,29 @@ class Grade(Command):
 
             if resp_game_id is None or resp_result is None:
                 logger.error(f'NOT_CORRECT_GAME_ID: {resp_game_id}')
-                await asyncio.sleep(0)
                 return
 
         except (TypeError, json.JSONDecodeError) as err:
+            # TODO: add message
+            # created vshagur@gmail.com, 2021-02-15
             logger.error(err)
-            await asyncio.sleep(0)
             return
 
         # check and add the result to temporary storage
-        if isinstance(resp_result, bool) and resp_result:
-            bot_logic.running_games[peer_id]['participants'].append((date, from_id))
+        game = bot_logic.running_games.get(peer_id)
+
+        if not resp_game_id == game.game_id:
+            logger.error('THE_WRONG_GAME_ID_WAS_SENT_IN_THE_REPLY')
+            return
+
+        if isinstance(resp_result, bool):
+
+            if from_id in game.participants:
+                # отправить сообщение, что уже отвечал
+                pass
+            else:
+                game.participants[from_id] = (update_content.get('date'), resp_result)
+
         else:
             logger.error(f'BAD_VALUE_FOR_RESULT: {resp_result}')
 
@@ -326,39 +348,47 @@ class Wait(Command):
 
     @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        # parse parameters
-        timeout = update_content['date']
-        payload = json.loads(update_content['payload'])
+        timeout = update_content.get('date')
+        payload = json.loads(update_content.get('payload'))
         command = '/move' if timeout <= 0 else payload.get('command')
-        game_id = payload.get('game_id')
-        round_id = payload.get('round_id')
-        from_id = update_content['from_id']
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-
-        timeout -= cls.SLEEP_TIME
 
         # set new timer
-        await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
-                                     random_id, from_id, timeout, command)
+        await Command.activate_timer(
+            bot_logic,
+            payload.get('game_id'),
+            payload.get('round_id'),
+            update_content.get('from_id'),
+            update_content.get('peer_id'),
+            update_content.get('random_id'),
+            update_content.get('from_id'),
+            timeout - cls.SLEEP_TIME,
+            command
+        )
 
 
 class Move(Command):
 
     @classmethod
     async def execute_if_game_in_progress(cls, bot_logic, update_content):
-        payload = json.loads(update_content['payload'])
+        payload = json.loads(update_content.get('payload'))
         game_id = payload.get('game_id')
-        peer_id = update_content['peer_id']
-        random_id = update_content['random_id']
-        from_id = update_content['from_id']
+        peer_id = update_content.get('peer_id')
+        random_id = update_content.get('random_id')
+        from_id = update_content.get('from_id')
         round_id = payload.get('round_id')
 
         # get the winner of the round
-        participants = bot_logic.running_games[peer_id]['participants']
+        game = bot_logic.running_games.get(peer_id)
 
-        if participants:
-            winner = sorted(participants, reverse=True).pop()[-1]
+        if game.participants:
+            correct_answer_users = [(data, user_id) for user_id, (data, result) in
+                                    game.participants.items() if result]
+
+            if correct_answer_users:
+                _, winner = sorted(correct_answer_users, reverse=True).pop()
+            else:
+                winner = 0
+
         else:
             winner = 0
 
@@ -393,31 +423,33 @@ class Move(Command):
 
         else:
             # update round data into temporary storage
-            bot_logic.running_games[peer_id]['participants'] = []
-            bot_logic.running_games[peer_id]['round_id'] += 1
-            round_id += 1
+            game.new_round()
 
             # get question from database
             quiz = await bot_logic.api_client.get_quiz()
 
             # create quiz keyboard
-            answers = quiz.get('answers')
-            correct_idx = quiz.get('correct_idx')
-            question = quiz.get('question')
-            timeout = quiz.get('timeout')
-            keyboard = get_quiz_keyboard(from_id, game_id, answers, correct_idx, round_id)
+            keyboard = get_quiz_keyboard(
+                from_id,
+                game_id,
+                quiz.get('answers'),
+                quiz.get('correct_idx'),
+                game.round_id
+            )
 
             # send quiz keyboard to user
             payload = {
                 'keyboard': keyboard.get_keyboard(),
                 'peer_id': peer_id,
                 'random_id': random_id,
-                'message': f'{question}',
+                'message': f'{quiz.get("question")}',
             }
 
             await cls.send(bot_logic, payload)
 
             # set timer
             command = '/wait'
-            await Command.activate_timer(bot_logic, game_id, round_id, from_id, peer_id,
-                                         random_id, from_id, timeout, command)
+            await Command.activate_timer(
+                bot_logic, game_id, game.round_id, from_id, peer_id, random_id,
+                from_id, quiz.get('timeout'), command
+            )

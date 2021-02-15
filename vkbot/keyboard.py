@@ -132,7 +132,7 @@ def get_quiz_keyboard(user_id, game_id, answers, correct_idx, round):
     :return: объект VkKeyboard
     """
 
-    keyboard = VkKeyboard(one_time=True)
+    keyboard = VkKeyboard(one_time=False)
 
     for idx, answer in enumerate(answers):
         result = True if idx == correct_idx else False
