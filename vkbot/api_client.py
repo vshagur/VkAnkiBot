@@ -50,15 +50,8 @@ class ApiClient:
 
     async def get_result(self, game_id):
         url = urljoin(self.url, f'/results/{game_id}')
-        data = await self.make_request(self.session.get(url))
-        game_id = data.get('game_id')
-        users = data.get('users')
-        score = data.get('score')
-        text = f'The result of the game is {game_id}.\n'
-        text += '\n'.join([f'{num}. {user}' for num, user in enumerate(users, 1)])
-        text += f'\nPoints scored per game: {score}.'
 
-        return text
+        return await self.make_request(self.session.get(url))
 
     async def save_round_info(self, game_id, round_id, winner):
         url = urljoin(self.url, f'/rounds/')

@@ -1,7 +1,17 @@
 import asyncio
 import json
 
-from keyboard import VkKeyboard, VkKeyboardColor, get_command_keyboard, get_quiz_keyboard
+from formatters import (
+    format_top_players_message,
+    format_game_aborted_messages,
+    format_game_finished_messages,
+)
+from keyboard import (
+    VkKeyboard,
+    VkKeyboardColor,
+    get_command_keyboard,
+    get_quiz_keyboard,
+)
 from logger import logger
 
 
@@ -131,9 +141,7 @@ class Abort(Command):
             payload = {
                 'peer_id': update_content.get('peer_id'),
                 'random_id': update_content.get('random_id'),
-                # TODO: format message
-                # created vshagur@gmail.com, 2021-02-11
-                'message': f'Game aborted.\n{result}',
+                'message': format_game_aborted_messages(result),
             }
 
             await cls.send(bot_logic, payload)
@@ -210,25 +218,20 @@ class Top(Command):
         data = await bot_logic.api_client.get_top_players()
 
         # send report to user
-        peer_id = update_content.get('peer_id')
-        random_id = update_content.get('random_id')
-        users = data.get('users')
-
-        # TODO: add correct format
-        # created vshagur@gmail.com, 2021-02-12
-        text = 'Best players.\n'
-        text += '\n'.join(f'{num}. {user}' for num, user in enumerate(users, 1))
-
         payload = {
-            'peer_id': peer_id,
-            'random_id': random_id,
-            'message': text,
+            'peer_id': update_content.get('peer_id'),
+            'random_id': update_content.get('random_id'),
+            'message': format_top_players_message(data.get('users')),
         }
 
         await cls.send(bot_logic, payload)
 
         # send command keyboard to user
-        await cls.send_command_keyboard(bot_logic, peer_id, random_id)
+        await cls.send_command_keyboard(
+            bot_logic,
+            update_content.get('peer_id'),
+            update_content.get('random_id')
+        )
 
 
 class NotExistCommand(Command):
@@ -411,9 +414,7 @@ class Move(Command):
             payload = {
                 'peer_id': peer_id,
                 'random_id': random_id,
-                # TODO: format message
-                # created vshagur@gmail.com, 2021-02-11
-                'message': f'Game finished.\n{result}',
+                'message': format_game_finished_messages(result),
             }
 
             await cls.send(bot_logic, payload)
