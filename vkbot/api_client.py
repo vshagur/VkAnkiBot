@@ -3,7 +3,7 @@ import os
 
 from urllib.parse import urljoin
 
-from logger import logger
+from logger.logger import logger
 
 
 class ApiClient:

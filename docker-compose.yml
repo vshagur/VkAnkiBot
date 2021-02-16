@@ -3,12 +3,12 @@ services:
   vkbot:
     build:
       context: ./
-      dockerfile: ./vkbot/Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
-      - ./vkbot:/vkbot
+      - ./:/VkAnkiBot
     command:
       - python
-      - 'main.py'
+      - 'vkbot/main.py'
     environment:
       VK_API_KEY: ${VK_API_KEY}
       VK_GROUP_ID: ${VK_GROUP_ID}
@@ -21,12 +21,12 @@ services:
   server:
     build:
       context: ./
-      dockerfile: ./server/Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
-      - ./server:/server
+      - ./:/VkAnkiBot
     command:
       - python
-      - 'api/main.py'
+      - 'server/api/main.py'
     environment:
       VK_BOT_MODE: ${VK_BOT_MODE}
     ports:

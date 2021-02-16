@@ -3,7 +3,7 @@ from aiohttp import web
 
 from random import randint, choice
 
-from logger import logger
+from logger.logger import logger
 
 QUESTIONS = (
     {

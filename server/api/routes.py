@@ -1,5 +1,5 @@
 # server/api/routes.py
-from views import (
+from server.api.views import (
     DocumentView,
     GameView,
     UserView,

@@ -1,9 +1,9 @@
 import asyncio
 import json
 
-from api_client import ApiClient
-from commands import Abort, Grade, Help, Move, New, NotExistCommand, Start, Top, Wait
-from logger import logger
+from vkbot.api_client import ApiClient
+from vkbot.commands import Abort, Grade, Help, Move, New, NotExistCommand, Start, Top, Wait
+from logger.logger import logger
 
 
 class BotLogic:

@@ -3,9 +3,9 @@ import os
 
 import aiohttp
 
-from bot_longpoll import VkBotLongPoll
-from logic import BotLogic
-from logger import logger
+from vkbot.bot_longpoll import VkBotLongPoll
+from vkbot.logic import BotLogic
+from logger.logger import logger
 
 
 def get_configuration():

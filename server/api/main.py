@@ -1,9 +1,9 @@
 # server/api/main.py
 from aiohttp import web
 
-from logger import logger
-from routes import setup_routes
-from settings import config
+from logger.logger import logger
+from server.api.routes import setup_routes
+from server.api.settings import config
 
 
 def main():
