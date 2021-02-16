@@ -1,18 +1,11 @@
 import asyncio
 import json
 
-from vkbot.formatters import (
-    format_top_players_message,
-    format_game_aborted_messages,
-    format_game_finished_messages,
-)
-from vkbot.keyboard import (
-    VkKeyboard,
-    VkKeyboardColor,
-    get_command_keyboard,
-    get_quiz_keyboard,
-)
 from logger.logger import logger
+from vkbot.formatters import (format_game_aborted_messages,
+                              format_game_finished_messages,
+                              format_top_players_message)
+from vkbot.keyboard import get_command_keyboard, get_quiz_keyboard
 
 
 class Game:

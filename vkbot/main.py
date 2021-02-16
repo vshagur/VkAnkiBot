@@ -2,10 +2,9 @@ import asyncio
 import os
 
 import aiohttp
-
+from logger.logger import logger
 from vkbot.bot_longpoll import VkBotLongPoll
 from vkbot.logic import BotLogic
-from logger.logger import logger
 
 
 def get_configuration():

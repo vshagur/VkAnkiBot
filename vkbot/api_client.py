@@ -1,6 +1,4 @@
-import asyncio
 import os
-
 from urllib.parse import urljoin
 
 from logger.logger import logger

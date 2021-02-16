@@ -1,5 +1,4 @@
 import json
-
 from enum import Enum
 
 # NOTE: Keyboard does not support inline mode

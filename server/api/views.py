@@ -1,8 +1,7 @@
 # server/api/views.py
+from random import choice, randint
+
 from aiohttp import web
-
-from random import randint, choice
-
 from logger.logger import logger
 
 QUESTIONS = (
