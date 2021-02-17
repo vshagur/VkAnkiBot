@@ -121,7 +121,7 @@ class Abort(Command):
         # check that the user can stop the game
         if game.user_id == update_content.get('from_id') and resp_game_id == game.game_id:
             # update the data about the game in the database (the game is over)
-            payload = {'status': 'done', 'game_id': game.game_id}
+            payload = {'status': 0, 'game_id': game.game_id}
             await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
@@ -397,7 +397,7 @@ class Move(Command):
             del bot_logic.running_games[peer_id]
 
             # update the game data in the db (the game is over)
-            payload = {'status': 'done', 'game_id': game_id}
+            payload = {'status': 0, 'game_id': game_id}
             await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db

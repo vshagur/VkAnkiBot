@@ -9,12 +9,8 @@ services:
     command:
       - python
       - 'vkbot/main.py'
-    environment:
-      VK_API_KEY: ${VK_API_KEY}
-      VK_GROUP_ID: ${VK_GROUP_ID}
-      VK_API_VERSION: ${VK_API_VERSION}
-      VK_BOT_MODE: ${VK_BOT_MODE}
-      DB_URL: ${DB_URL}
+    env_file:
+      - .env
     depends_on:
       - server
       - postgres
@@ -27,8 +23,9 @@ services:
     command:
       - python
       - 'server/api/main.py'
-    environment:
-      VK_BOT_MODE: ${VK_BOT_MODE}
+    env_file:
+      - db/database.env
+      - .env
     ports:
       - 8080:8080
     depends_on:
