@@ -4,3 +4,4 @@ PyYAML==5.4.1
 gino==1.0.1
 aiohttp-apispec ==2.2.1
 alembic==1.5.4
+psycopg2-binary
