@@ -9,7 +9,23 @@ class DbClient():
         self.question = Question
         self.db = None
 
-    async def connect(self, application):
-        await self.db.set_bind(
-            f'postgresql://{self.config.get("db_host")}/{self.config.get("db_name")}'
-        )
+    def setup(self, application):
+        application.on_startup.append(self._on_connect)
+        application.on_cleanup.append(self._on_disconnect)
+
+    async def _on_connect(self, application):
+        from db.models import db
+
+        host = self.config.get("db_host")
+        name = self.config.get("db_name")
+        user = self.config.get("db_user")
+        password = self.config.get("db_password")
+
+        await db.set_bind(f'postgresql://{user}:{password}@{host}/{name}')
+
+        self.db = db
+        application["db_client"] = self
+
+    async def _on_disconnect(self, _):
+        if self.db is not None:
+            await self.db.pop_bind().close()

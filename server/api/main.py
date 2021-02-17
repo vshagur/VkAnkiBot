@@ -28,7 +28,7 @@ def get_app():
 
 def set_db_client(app, db_config):
     db_client = DbClient(db_config)
-    app['db_client'] = db_client
+    db_client.setup(app)
 
 
 def main():
