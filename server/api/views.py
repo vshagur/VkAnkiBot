@@ -3,7 +3,7 @@ from random import choice, randint
 
 from aiohttp import web
 from logger.logger import logger
-from db.models import Document
+from db.models import Document, User
 
 QUESTIONS = (
     {
@@ -56,17 +56,12 @@ class UserView(web.View):
     async def post(self):
         data = await self.request.json()
         vk_user_id = data.get('vk_user_id')
+        user = await User.select('vk_id').where(User.vk_id == vk_user_id).gino.scalar()
 
-        if vk_user_id:
-            logger.debug(f'add user: {vk_user_id} to db')
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            # проверить сначала, что такого пользователя еще нет
-            data = {'user_id': 1111111}  # dummy
+        if not user:
+            await User.create(vk_id=vk_user_id)
 
-            return web.json_response(data)
-
-        raise web.HTTPBadRequest()
+        return web.json_response({'user_id': vk_user_id})
 
 
 class TopView(web.View):
