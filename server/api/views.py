@@ -79,39 +79,31 @@ class GameView(web.View):
 
     async def post(self):
         data = await self.request.json()
-        chat_id = data.get('chat_id')
-        vk_user_id = data.get('vk_user_id')
 
-        if vk_user_id and chat_id:
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            game_id = randint(10 ** 4, 10 ** 5 - 1)
-            data = {'game_id': game_id}  # dummy
+        game = await Game.create(
+            peer_id=data.get('chat_id'),
+            owner_id=data.get('vk_user_id')
+        )
 
-            logger.debug(f'new game created: {game_id} to db')
-            return web.json_response(data)
-
-        raise web.HTTPBadRequest()
+        return web.json_response({'game_id': game.id})
 
     async def put(self):
         data = await self.request.json()
-        game_id = data.get('game_id')
-        status = data.get('status')
+        game = await Game.get(data.get('game_id'))
 
-        if game_id:
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            data = {
-                'game_id': game_id,
-                # 'vk_user_id': 'vk_user_id from db',
-                # 'chat_id': 'chat_id from db',
-                'status': status,
-            }  # dummy
+        if not game:
+            raise web.HTTPBadRequest()
 
-            logger.debug(f'game info updated: {data}')
-            return web.json_response(data)
+        await game.update(status=data.get('status')).apply()
 
-        raise web.HTTPBadRequest()
+        data = {
+            'game_id': game.id,
+            'status': game.status,
+            'peer_id': game.peer_id,
+            'owner_id': game.owner_id,
+        }
+
+        return web.json_response(data)
 
 
 class ResultView(web.View):
@@ -152,7 +144,6 @@ class QuestionView(web.View):
             # created vshagur@gmail.com, 2021-02-18
             'timeout': 5,  # move to settings
         }
-        logger.debug(f'get question from db: {data}')
 
         return web.json_response(data)
 
