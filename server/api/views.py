@@ -3,6 +3,7 @@ from random import choice, randint
 
 from aiohttp import web
 from logger.logger import logger
+from db.models import Document
 
 QUESTIONS = (
     {
@@ -42,13 +43,10 @@ class DocumentView(web.View):
 
     async def get(self):
         name = self.request.match_info['name']
+        text = await Document.select('text').where(Document.name == name).gino.scalar()
 
-        if name:
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            logger.debug('get help page from db')
-            data = {'text': 'very long help page ... from db'}
-            return web.json_response(data)
+        if text:
+            return web.json_response({'text': text})
 
         raise web.HTTPNotFound()
 
