@@ -49,7 +49,7 @@ class BotLogic:
         while True:
             # get data form queue
             update = await self.queue.get()
-            logger.debug(f'GET_UPDATE_FROM_QUEUE: {update}')
+            # logger.debug(f'GET_UPDATE_FROM_QUEUE: {update}')
 
             # filter by type
             resp_type = update.get('type')

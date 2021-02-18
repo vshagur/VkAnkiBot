@@ -3,7 +3,7 @@ from random import choice, randint
 
 from aiohttp import web
 from logger.logger import logger
-from db.models import Document, User
+from db.models import Document, User, Question, Game, Round
 
 QUESTIONS = (
     {
@@ -133,9 +133,25 @@ class ResultView(web.View):
 class QuestionView(web.View):
 
     async def get(self):
-        # TODO: add logic
-        # created vshagur@gmail.com, 2021-02-14
-        data = choice(QUESTIONS)
+        # TODO: добавить нормальное получение случайного idx
+        # created vshagur@gmail.com, 2021-02-18
+        db_max = 3
+        idx = randint(1, 3)
+
+        question = await Question.get(idx)
+
+        data = {
+            'question': question.question_text,
+            'answers': [
+                question.answer1_text,
+                question.answer2_text,
+                question.answer3_text
+            ],
+            'correct_idx': question.correct_id,
+            # TODO: добавить в базу значений с timeout
+            # created vshagur@gmail.com, 2021-02-18
+            'timeout': 5,  # move to settings
+        }
         logger.debug(f'get question from db: {data}')
 
         return web.json_response(data)

@@ -28,7 +28,9 @@ class Question(db.Model):
     answer2_text = db.Column(db.Unicode())
     answer3_text = db.Column(db.Unicode())
     correct_id = db.Column(db.Integer())
-    timeout = db.Column(db.Integer())
+    # TODO: change default value for timeout == 30
+    # created vshagur@gmail.com, 2021-02-18
+    timeout = db.Column(db.Integer(), default=5)
 
 
 class Round(db.Model):
