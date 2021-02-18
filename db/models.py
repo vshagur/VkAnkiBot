@@ -39,7 +39,7 @@ class Round(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     game_id = db.Column(db.Integer())
     count = db.Column(db.Integer())  # номер раунда в игре
-    winner = db.Column(db.Integer())  # vk_id победителя
+    winner = db.Column(db.Integer())  # vk_id победителя, 0 если его нет
 
 
 class Game(db.Model):

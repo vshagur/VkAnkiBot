@@ -52,7 +52,7 @@ class ApiClient:
         return await self.make_request(self.session.get(url))
 
     async def save_round_info(self, game_id, round_id, winner):
-        url = urljoin(self.url, f'/rounds/')
+        url = urljoin(self.url, f'/rounds')
         data = {'vk_user_id': winner, 'game_id': game_id, 'round_id': round_id}
 
         return await self.make_request(self.session.post(url, json=data))
@@ -63,4 +63,4 @@ class ApiClient:
             if resp.status == 200:
                 return await resp.json()
             else:
-                logger.error('BAD_RESPONSE_STATUS_CODE: {resp.status} from {resource}')
+                logger.error(f'BAD_RESPONSE_STATUS_CODE: {resp.status} ')

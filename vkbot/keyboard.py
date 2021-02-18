@@ -133,7 +133,7 @@ def get_quiz_keyboard(user_id, game_id, answers, correct_idx, round):
 
     keyboard = VkKeyboard(one_time=False)
 
-    for idx, answer in enumerate(answers):
+    for idx, answer in enumerate(answers, 1):
         result = True if idx == correct_idx else False
         keyboard.add_button(
             answer,

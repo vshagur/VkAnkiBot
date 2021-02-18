@@ -152,16 +152,11 @@ class RoundView(web.View):
 
     async def post(self):
         data = await self.request.json()
-        vk_user_id = data.get('vk_user_id')
-        game_id = data.get('game_id')
-        round_id = data.get('round_id')
 
-        if vk_user_id and game_id and round_id:
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            data = {'round_id': randint(10 ** 3, 10 ** 4 - 1)}  # dummy
-            logger.debug(f'add round: {round_id} to db')
+        round = await Round.create(
+            game_id=data.get('game_id'),
+            winner=data.get('vk_user_id'),
+            count=data.get('round_id'),
+        )
 
-            return web.json_response(data)
-
-        raise web.HTTPBadRequest()
+        return web.json_response({'round_id': round.id})
