@@ -28,7 +28,7 @@ def format_game_result_message(result):
         text += '\nThere are no winners. There were no participants in the game, ' \
                 'or everyone answered incorrectly.'
     else:
-        text += '\nThe winners of this game:'
+        text += '\nThe winners of this game:\n'
         text += '\n'.join([f'{num}. {user}' for num, user in enumerate(users, 1)])
         text += f'\nPoints scored per game: {score}.'
 

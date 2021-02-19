@@ -3,14 +3,6 @@ from gino import Gino
 db = Gino()
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-
-    vk_id = db.Column(db.Integer(), primary_key=True)
-    first_name = db.Column(db.Unicode(), default='noname')
-    last_name = db.Column(db.Unicode(), default='noname')
-
-
 class Document(db.Model):
     __tablename__ = 'documents'
 
@@ -42,10 +34,27 @@ class Round(db.Model):
     winner = db.Column(db.Integer())  # vk_id победителя, 0 если его нет
 
 
+class User(db.Model):
+    __tablename__ = 'users'
+
+    vk_id = db.Column(db.Integer(), primary_key=True)
+    first_name = db.Column(db.Unicode(), default='noname')
+    last_name = db.Column(db.Unicode(), default='noname')
+
+
 class Game(db.Model):
     __tablename__ = 'games'
 
     id = db.Column(db.Integer(), primary_key=True)
     peer_id = db.Column(db.Integer())  # id беседы
-    owner_id = db.Column(db.Integer())  # vk_id инициатора игры
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.vk_id')) # vk_id инициатора игры
     status = db.Column(db.Integer(), default=1)  # 1 - process или 0 - done
+
+class Statistic(db.Model):
+    __tablename__ = 'users_statistic'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.vk_id'))
+    total_games = db.Column(db.Integer())
+    win_games = db.Column(db.Integer())
+
