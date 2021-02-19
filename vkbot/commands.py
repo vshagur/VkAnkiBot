@@ -70,6 +70,8 @@ class Command:
 
     @classmethod
     async def send(cls, bot_logic, payload):
+        # TODO: do refactor: add url to parameters
+        # created vshagur@gmail.com, 2021-02-19
         url = bot_logic.url
         new_payload = payload.copy()
         new_payload.update(bot_logic.payload)
@@ -77,6 +79,18 @@ class Command:
         async with bot_logic.session.post(url, data=new_payload) as resp:
             if resp.status == 200:
                 content = await resp.json()
+            else:
+                logger.error(f'RESPONSE_CODE_NOT_200. URL: {url}. CODE: {resp.status}.')
+
+    @classmethod
+    async def get_user_info(cls, bot_logic, payload):
+        url = 'https://api.vk.com/method/users.get'
+        new_payload = payload.copy()
+        new_payload.update(bot_logic.payload)
+
+        async with bot_logic.session.post(url, data=new_payload) as resp:
+            if resp.status == 200:
+                return await resp.json()
             else:
                 logger.error(f'RESPONSE_CODE_NOT_200. URL: {url}. CODE: {resp.status}.')
 
@@ -190,10 +204,23 @@ class Start(Command):
     async def execute_if_wait_game(cls, bot_logic, update_content):
         """add new user to db"""
 
-        # TODO: add getting full data about user by id
-        # created vshagur@gmail.com, 2021-02-11
+        user_id = update_content.get('from_id')
 
-        await bot_logic.api_client.add_user(update_content.get('from_id'))
+        # get user info
+        payload = {'user_ids': str(user_id)}
+
+        resp = await cls.get_user_info(bot_logic, payload)
+
+        # add user to db
+        user_data = resp.get('response').pop()
+
+        data = {
+            'vk_user_id': user_id,
+            'first_name': user_data.get('first_name') or 'noname',
+            'last_name': user_data.get('last_name') or 'noname',
+        }
+
+        await bot_logic.api_client.add_user(data)
 
         # send command keyboard to user
         await cls.send_command_keyboard(

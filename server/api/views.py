@@ -1,42 +1,10 @@
 # server/api/views.py
 from random import choice, randint
+from collections import Counter
 
 from aiohttp import web
 from logger.logger import logger
 from db.models import Document, User, Question, Game, Round
-
-QUESTIONS = (
-    {
-        'question': 'who are you?',
-        'answers': ['human', 'bird', 'fish'],
-        'correct_idx': 1,
-        'timeout': 5,  # move to settings
-    },
-    {
-        'question': 'who can read?',
-        'answers': ['human', 'dog', 'cat'],
-        'correct_idx': 1,
-        'timeout': 5,  # move to settings
-    },
-    {
-        'question': 'who meows?',
-        'answers': ['snake ', 'dog', 'cat'],
-        'correct_idx': 3,
-        'timeout': 5,  # move to settings
-    },
-    {
-        'question': 'Who catches mice??',
-        'answers': ['mosquito', 'worm ', 'cat'],
-        'correct_idx': 3,
-        'timeout': 5,  # move to settings
-    },
-    {
-        'question': 'Who is following the trail of criminals?',
-        'answers': ['police', 'cook ', 'garcon'],
-        'correct_idx': 1,
-        'timeout': 5,  # move to settings
-    }
-)
 
 
 class DocumentView(web.View):
@@ -55,11 +23,18 @@ class UserView(web.View):
 
     async def post(self):
         data = await self.request.json()
+
         vk_user_id = data.get('vk_user_id')
+
         user = await User.select('vk_id').where(User.vk_id == vk_user_id).gino.scalar()
 
+        # add user if user is not exist
         if not user:
-            await User.create(vk_id=vk_user_id)
+            await User.create(
+                vk_id=vk_user_id,
+                first_name=data.get('first_name'),
+                last_name=data.get('last_name')
+            )
 
         return web.json_response({'user_id': vk_user_id})
 
@@ -109,17 +84,35 @@ class GameView(web.View):
 class ResultView(web.View):
 
     async def get(self):
-        game_id = self.request.match_info['game_id']
+        game_id = int(self.request.match_info['game_id'])
+        # chose all rounds with current game_id
+        game_rounds = await Round.query.where(Round.game_id == game_id).gino.all()
+        # get user_id
+        round_winners = [round_id.winner for round_id in game_rounds]
 
-        if game_id:
-            # TODO: add logic
-            # created vshagur@gmail.com, 2021-02-14
-            data = {'game_id': game_id, 'users': ['Ivan', 'Oleg'], 'score': randint(2, 4)}
-            logger.debug(f'get game result from db: {data}')
+        # check any users played
+        if all([user_id == 0 for user_id in round_winners]):
+            winners, max_score = [0, ], 0
+        else:
+            # get winners list and max score
+            round_winners = filter(lambda x: x != 0, round_winners)
+            counter = Counter(round_winners)
+            counter.subtract()
+            max_score = max(counter.values())
+            winners = [user_id for user_id, score in counter.items() if
+                       score == max_score]
 
-            return web.json_response(data)
+        # clear
+        for game_round in game_rounds:
+            game_round.delete()
 
-        raise web.HTTPNotFound()
+        # посчитать количество, выбрать тех у кого больше всего
+        # записать в базу данных в таблицу results
+        # вернуть список победителей и количество очков
+        # удалить из базы данные о раунде
+
+        data = {'game_id': game_id, 'users': winners, 'score': max_score}
+        return web.json_response(data)
 
 
 class QuestionView(web.View):

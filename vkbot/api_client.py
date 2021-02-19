@@ -14,9 +14,8 @@ class ApiClient:
         self.api_key = api_key
         self.url = os.getenv('DB_URL')
 
-    async def add_user(self, vk_user_id):
+    async def add_user(self, data):
         url = urljoin(self.url, '/users')
-        data = {'vk_user_id': vk_user_id}
 
         return await self.make_request(self.session.post(url, json=data))
 
