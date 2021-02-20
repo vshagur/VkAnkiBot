@@ -1,7 +1,6 @@
 # server/api/views.py
 from random import randint
 from collections import Counter
-
 from aiohttp import web
 from db.models import Document, User, Question, Game, Round, Statistic
 
@@ -101,6 +100,7 @@ class ResultView(web.View):
         data = await self.request.json()
         game_id = data.get('game_id')
         game_players = data.get('game_players')
+        naming_dict = {}
 
         # chose all rounds with current game_id
         game_rounds = await Round.query.where(Round.game_id == game_id).gino.all()
@@ -144,11 +144,26 @@ class ResultView(web.View):
             await user_statistic.update(
                 total_games=user_statistic.total_games + 1).apply()
 
+            for user_id in winners:
+                user = await User.query.where(User.vk_id == user_id).gino.first()
+                if not user:
+                    continue
+
+                naming_dict[user_id] = {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                }
+
         # clear
         for game_round in game_rounds:
             await game_round.delete()
 
-        data = {'game_id': game_id, 'users': winners, 'score': max_score}
+        data = {
+            'game_id': game_id,
+            'users': winners,
+            'score': max_score,
+            'naming_dict': naming_dict,
+        }
 
         return web.json_response(data)
 
