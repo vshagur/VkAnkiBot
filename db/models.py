@@ -55,6 +55,6 @@ class Statistic(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.vk_id'))
-    total_games = db.Column(db.Integer())
-    win_games = db.Column(db.Integer())
+    total_games = db.Column(db.Integer(), default=0)
+    win_games = db.Column(db.Integer(), default=0)
 

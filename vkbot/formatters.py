@@ -22,7 +22,7 @@ def format_game_result_message(result):
     users = result.get('users')
     score = result.get('score')
 
-    text = f'The result of the game is {game_id}.'
+    text = f'Game results {game_id}.'
 
     if users == [0, ]:
         text += '\nThere are no winners. There were no participants in the game, ' \

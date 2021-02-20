@@ -4,7 +4,7 @@ from collections import Counter
 
 from aiohttp import web
 from logger.logger import logger
-from db.models import Document, User, Question, Game, Round
+from db.models import Document, User, Question, Game, Round, Statistic
 
 
 class DocumentView(web.View):
@@ -87,31 +87,51 @@ class ResultView(web.View):
         game_id = int(self.request.match_info['game_id'])
         # chose all rounds with current game_id
         game_rounds = await Round.query.where(Round.game_id == game_id).gino.all()
-        # get user_id
-        round_winners = [round_id.winner for round_id in game_rounds]
+        # get all participants who win
+        round_participants = [round_id.winner for round_id in game_rounds]
 
-        # check any users played
-        if all([user_id == 0 for user_id in round_winners]):
+        # check case when there were no answers from the players
+        if all([user_id == 0 for user_id in round_participants]):
             winners, max_score = [0, ], 0
         else:
+            # delete rounds without answers
+            round_participants = [user_id for user_id in round_participants if
+                                  user_id != 0]
             # get winners list and max score
-            round_winners = filter(lambda x: x != 0, round_winners)
-            counter = Counter(round_winners)
+            counter = Counter(round_participants)
             counter.subtract()
             max_score = max(counter.values())
             winners = [user_id for user_id, score in counter.items() if
                        score == max_score]
 
+            for user_id in set(round_participants):
+                id = await Statistic.select('id') \
+                    .where(Statistic.user_id == user_id) \
+                    .gino.scalar()
+
+                if not id:
+                    user_statistic = await Statistic.create(
+                        user_id=user_id,
+                        total_games=0,
+                        win_games=0
+                    )
+
+                else:
+                    user_statistic = await Statistic.get(id)
+
+                if user_id in winners:
+                    await user_statistic.update(
+                        win_games=user_statistic.win_games + 1).apply()
+
+                await user_statistic.update(
+                    total_games=user_statistic.total_games + 1).apply()
+
         # clear
         for game_round in game_rounds:
-            game_round.delete()
-
-        # посчитать количество, выбрать тех у кого больше всего
-        # записать в базу данных в таблицу results
-        # вернуть список победителей и количество очков
-        # удалить из базы данные о раунде
+            await game_round.delete()
 
         data = {'game_id': game_id, 'users': winners, 'score': max_score}
+
         return web.json_response(data)
 
 

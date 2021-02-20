@@ -5,6 +5,7 @@ from aiohttp import web
 from logger.logger import logger
 from server.api.routes import setup_routes
 from server.api.settings import config
+from time import sleep
 from db.db_client import DbClient
 
 
@@ -35,6 +36,10 @@ def main():
     app = get_app()
     db_config = get_db_config()
     set_db_client(app, db_config)
+    # TODO: узнать, как дождаться инициализаци базы данных при первом запуске
+    # чтобы не возникало ошибок, использование sleep временное решение
+    # created vshagur@gmail.com, 2021-02-19
+    sleep(5)
     web.run_app(app)
 
 

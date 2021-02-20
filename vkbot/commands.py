@@ -356,7 +356,8 @@ class Grade(Command):
         if isinstance(resp_result, bool):
 
             if from_id in game.participants:
-                # отправить сообщение, что уже отвечал
+                # TODO: отправить сообщение, что на вопрос можно отвечать только один раз
+                # created vshagur@gmail.com, 2021-02-19
                 pass
             else:
                 game.participants[from_id] = (update_content.get('date'), resp_result)
