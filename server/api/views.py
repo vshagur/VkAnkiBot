@@ -199,10 +199,10 @@ class RoundView(web.View):
     async def post(self):
         data = await self.request.json()
 
-        round = await Round.create(
+        game_round = await Round.create(
             game_id=data.get('game_id'),
             winner=data.get('vk_user_id'),
             count=data.get('round_id'),
         )
 
-        return web.json_response({'round_id': round.id})
+        return web.json_response({'round_id': game_round.id})
