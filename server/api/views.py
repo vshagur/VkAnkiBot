@@ -1,9 +1,8 @@
 # server/api/views.py
-from random import choice, randint
+from random import randint
 from collections import Counter
 
 from aiohttp import web
-from logger.logger import logger
 from db.models import Document, User, Question, Game, Round, Statistic
 
 
@@ -42,7 +41,6 @@ class UserView(web.View):
 class TopView(web.View):
 
     async def get(self):
-
         all_users = await User \
             .join(Statistic) \
             .select().gino \
@@ -125,11 +123,11 @@ class ResultView(web.View):
 
         for user_id in game_players:
 
-            id = await Statistic.select('id') \
+            id_ = await Statistic.select('id') \
                 .where(Statistic.user_id == user_id) \
                 .gino.scalar()
 
-            if not id:
+            if not id_:
                 user_statistic = await Statistic.create(
                     user_id=user_id,
                     total_games=0,
@@ -137,7 +135,7 @@ class ResultView(web.View):
                 )
 
             else:
-                user_statistic = await Statistic.get(id)
+                user_statistic = await Statistic.get(id_)
 
             if user_id in winners:
                 await user_statistic.update(
