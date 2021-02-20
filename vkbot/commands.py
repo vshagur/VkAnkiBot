@@ -333,6 +333,7 @@ class Grade(Command):
         # parse the result of the round
         from_id = update_content.get('from_id')
         peer_id = update_content.get('peer_id')
+        random_id = update_content.get('random_id')
 
         try:
             resp_payload = json.loads(update_content.get('payload'))
@@ -359,9 +360,16 @@ class Grade(Command):
         if isinstance(resp_result, bool):
 
             if from_id in game.participants:
-                # TODO: отправить сообщение, что на вопрос можно отвечать только один раз
-                # created vshagur@gmail.com, 2021-02-19
-                pass
+                # TODO: change from_id to user name
+                # created vshagur@gmail.com, 2021-02-20
+                payload = {
+                    'peer_id': peer_id,
+                    'random_id': random_id,
+                    'message': f'@{from_id} The question can only be answered once.',
+                }
+
+                await cls.send(bot_logic, payload)
+
             else:
                 game.participants[from_id] = (update_content.get('date'), resp_result)
 
