@@ -42,7 +42,13 @@ class UserView(web.View):
 class TopView(web.View):
 
     async def get(self):
-        all_users = await Statistic.query.gino.all()
+
+        all_users = await User \
+            .join(Statistic) \
+            .select().gino \
+            .load(Statistic.load(user_id=User)) \
+            .all()
+
         results = []
 
         for user in all_users:
@@ -50,7 +56,9 @@ class TopView(web.View):
                 user.win_games / user.total_games,
                 user.win_games,
                 user.total_games,
-                user.user_id
+                user.user_id.vk_id,
+                user.user_id.first_name,
+                user.user_id.last_name,
             ))
 
         results.sort(reverse=True)
