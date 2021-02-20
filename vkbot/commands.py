@@ -4,7 +4,8 @@ import json
 from logger.logger import logger
 from vkbot.formatters import (format_game_aborted_messages,
                               format_game_finished_messages,
-                              format_top_players_message)
+                              format_top_players_message,
+                              format_new_game_message)
 from vkbot.keyboard import get_command_keyboard, get_quiz_keyboard
 
 
@@ -289,7 +290,7 @@ class New(Command):
         payload = {
             'peer_id': peer_id,
             'random_id': random_id,
-            'message': f'User {from_id} created a new game: {game_id}',
+            'message': format_new_game_message(data),
         }
 
         await cls.send(bot_logic, payload)

@@ -59,3 +59,14 @@ def format_game_result_message(result):
         text += f'\nPoints scored per game: {score}.'
 
     return text
+
+
+def format_new_game_message(data):
+    user_id = data.get('user_id')
+    game_id = data.get('game_id')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    visible_name = get_visible_name(user_id, first_name, last_name)
+    text = f'{visible_name} created a new game: {game_id}'
+
+    return text

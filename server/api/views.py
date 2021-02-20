@@ -67,13 +67,18 @@ class GameView(web.View):
 
     async def post(self):
         data = await self.request.json()
+        user_id = data.get('vk_user_id')
+        game = await Game.create(peer_id=data.get('chat_id'), owner_id=user_id)
+        user = await User.query.where(User.vk_id == user_id).gino.first()
 
-        game = await Game.create(
-            peer_id=data.get('chat_id'),
-            owner_id=data.get('vk_user_id')
-        )
+        data = {
+            'game_id': game.id,
+            'user_id': user_id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        }
 
-        return web.json_response({'game_id': game.id})
+        return web.json_response(data)
 
     async def put(self):
         data = await self.request.json()
