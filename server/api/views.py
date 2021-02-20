@@ -94,7 +94,7 @@ class ResultView(web.View):
         round_participants = [round_id.winner for round_id in game_rounds]
 
         # check case when there were no answers from the players
-        if all([user_id == 0 for user_id in round_participants]):
+        if all([user_id == 0 for user_id in round_participants]) or len(game_players) < 2:
             winners, max_score = [0, ], 0
         else:
             # delete rounds without answers
