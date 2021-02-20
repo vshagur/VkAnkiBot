@@ -83,8 +83,11 @@ class GameView(web.View):
 
 class ResultView(web.View):
 
-    async def get(self):
-        game_id = int(self.request.match_info['game_id'])
+    async def post(self):
+        data = await self.request.json()
+        game_id = data.get('game_id')
+        game_players = data.get('game_players')
+
         # chose all rounds with current game_id
         game_rounds = await Round.query.where(Round.game_id == game_id).gino.all()
         # get all participants who win
@@ -104,27 +107,28 @@ class ResultView(web.View):
             winners = [user_id for user_id, score in counter.items() if
                        score == max_score]
 
-            for user_id in set(round_participants):
-                id = await Statistic.select('id') \
-                    .where(Statistic.user_id == user_id) \
-                    .gino.scalar()
+        for user_id in game_players:
 
-                if not id:
-                    user_statistic = await Statistic.create(
-                        user_id=user_id,
-                        total_games=0,
-                        win_games=0
-                    )
+            id = await Statistic.select('id') \
+                .where(Statistic.user_id == user_id) \
+                .gino.scalar()
 
-                else:
-                    user_statistic = await Statistic.get(id)
+            if not id:
+                user_statistic = await Statistic.create(
+                    user_id=user_id,
+                    total_games=0,
+                    win_games=0
+                )
 
-                if user_id in winners:
-                    await user_statistic.update(
-                        win_games=user_statistic.win_games + 1).apply()
+            else:
+                user_statistic = await Statistic.get(id)
 
+            if user_id in winners:
                 await user_statistic.update(
-                    total_games=user_statistic.total_games + 1).apply()
+                    win_games=user_statistic.win_games + 1).apply()
+
+            await user_statistic.update(
+                total_games=user_statistic.total_games + 1).apply()
 
         # clear
         for game_round in game_rounds:

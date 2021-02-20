@@ -45,10 +45,11 @@ class ApiClient:
 
         return await self.make_request(self.session.get(url))
 
-    async def get_result(self, game_id):
-        url = urljoin(self.url, f'/results/{game_id}')
+    async def send_result(self, game_id, game_players):
+        url = urljoin(self.url, '/results')
+        data = {'game_id': game_id, 'game_players': list(game_players)}
 
-        return await self.make_request(self.session.get(url))
+        return await self.make_request(self.session.post(url, json=data))
 
     async def save_round_info(self, game_id, round_id, winner):
         url = urljoin(self.url, f'/rounds')

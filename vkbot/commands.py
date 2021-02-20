@@ -14,9 +14,11 @@ class Game:
         self.user_id = user_id  # game owner
         self.round_id = round_id
         self.participants = {}  # key - user_id, value - (data, result)
+        self.game_players = set()
 
     def new_round(self):
         self.round_id += 1
+        self.game_players |= set(self.participants.keys())
         self.participants = {}
 
 
@@ -139,7 +141,8 @@ class Abort(Command):
             await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
-            result = await bot_logic.api_client.get_result(game.game_id)
+            result = await bot_logic.api_client.send_result(game.game_id,
+                                                            game.game_players)
 
             # clear game data
             del bot_logic.running_games[update_content.get('peer_id')]
@@ -429,7 +432,7 @@ class Move(Command):
             await bot_logic.api_client.update_game_info(payload)
 
             # get game result from db
-            result = await bot_logic.api_client.get_result(game_id)
+            result = await bot_logic.api_client.send_result(game_id, game.game_players)
 
             # send result to user
             payload = {
