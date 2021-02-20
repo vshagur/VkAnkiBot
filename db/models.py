@@ -47,8 +47,9 @@ class Game(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     peer_id = db.Column(db.Integer())  # id беседы
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.vk_id')) # vk_id инициатора игры
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.vk_id'))  # vk_id создателя
     status = db.Column(db.Integer(), default=1)  # 1 - process или 0 - done
+
 
 class Statistic(db.Model):
     __tablename__ = 'users_statistic'
@@ -57,4 +58,3 @@ class Statistic(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('users.vk_id'))
     total_games = db.Column(db.Integer(), default=0)
     win_games = db.Column(db.Integer(), default=0)
-

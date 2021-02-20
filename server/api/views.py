@@ -42,12 +42,20 @@ class UserView(web.View):
 class TopView(web.View):
 
     async def get(self):
-        # TODO: add logic
-        # created vshagur@gmail.com, 2021-02-14
-        data = {'users': {'Ivan': 20, 'Oleg': 19}}
-        logger.debug(f'get top players from db: {data}')
+        all_users = await Statistic.query.gino.all()
+        results = []
 
-        return web.json_response(data)
+        for user in all_users:
+            results.append((
+                user.win_games / user.total_games,
+                user.win_games,
+                user.total_games,
+                user.user_id
+            ))
+
+        results.sort(reverse=True)
+
+        return web.json_response({'users': results[:10]})
 
 
 class GameView(web.View):

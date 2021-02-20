@@ -1,8 +1,10 @@
 def format_top_players_message(users):
-    # TODO: add correct format
-    # created vshagur@gmail.com, 2021-02-12
     text = 'Best players.\n'
-    text += '\n'.join(f'{num}. {user}' for num, user in enumerate(users, 1))
+
+    for num, user_data in enumerate(users, 1):
+        success, win_games, total_games, user_id = user_data
+        success = '{:.4%}'.format(success)
+        text += f'\n{num}. {user_id}: success {success} in {total_games} games'
 
     return text
 
