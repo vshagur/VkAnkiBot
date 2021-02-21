@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, validate
+from db.schemas import UserSchema
 
 
 class RoundSchemaResponse(Schema):
@@ -29,3 +30,7 @@ class TopSchemaResponse(Schema):
                 fields.String(),
             )
         ))
+
+
+class GamesSchemaResponse(UserSchema):
+    game_id = fields.Integer()

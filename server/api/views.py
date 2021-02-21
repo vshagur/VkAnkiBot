@@ -4,9 +4,10 @@ from collections import Counter
 from aiohttp import web
 from db.models import Document, User, Question, Game, Round, Statistic
 from aiohttp_apispec import request_schema, docs, response_schema, querystring_schema
-from db.schemas import (RoundSchema, UserSchema)
+from db.schemas import (RoundSchema, UserSchema, GameSchema)
 from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
-                                DocumentSchemaQuerystring, TopSchemaResponse)
+                                DocumentSchemaQuerystring, TopSchemaResponse,
+                                GamesSchemaResponse)
 
 
 class DocumentView(web.View):
@@ -85,16 +86,22 @@ class TopView(web.View):
 
 
 class GameView(web.View):
-
+    @docs(
+        tags=["game"],
+        summary="Create new game",
+        description="Create new game",
+    )
+    @request_schema(GameSchema)
+    @response_schema(GamesSchemaResponse)
     async def post(self):
         data = await self.request.json()
-        user_id = data.get('vk_user_id')
-        game = await Game.create(peer_id=data.get('chat_id'), owner_id=user_id)
-        user = await User.query.where(User.vk_id == user_id).gino.first()
+        owner_id = data.get('owner_id')
+        game = await Game.create(peer_id=data.get('peer_id'), owner_id=owner_id)
+        user = await User.query.where(User.vk_id == owner_id).gino.first()
 
         data = {
             'game_id': game.id,
-            'user_id': user_id,
+            'vk_id': owner_id,
             'first_name': user.first_name,
             'last_name': user.last_name,
         }

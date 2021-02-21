@@ -31,7 +31,7 @@ class ApiClient:
 
     async def create_new_game(self, chat_id, vk_user_id):
         url = urljoin(self.url, '/game')
-        data = {'chat_id': chat_id, 'vk_user_id': vk_user_id}
+        data = {'peer_id': chat_id, 'owner_id': vk_user_id}
 
         return await self.make_request(self.session.post(url, json=data))
 
