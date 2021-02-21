@@ -38,3 +38,19 @@ class GameSchemaBase(Schema):
 
 class GameSchemaResponse(UserSchema, GameSchemaBase):
     pass
+
+
+class ResultSchema(GameSchemaBase):
+    game_players = fields.List(fields.Integer())
+
+
+class ResultSchemaResponse(GameSchemaBase):
+    users = fields.List(fields.Integer())
+    score = fields.Integer()
+    naming_dict = fields.Dict(
+        keys=fields.Integer(),
+        values=fields.Dict(
+            keys=fields.String(
+                validate=validate.OneOf(['first_name', 'last_name']),
+                values=fields.String()
+            )))
