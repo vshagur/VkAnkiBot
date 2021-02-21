@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class RoundSchemaResponse(Schema):
@@ -15,3 +15,17 @@ class DocumentSchemaResponse(Schema):
 
 class DocumentSchemaQuerystring(Schema):
     name = fields.String(required=True)
+
+
+class TopSchemaResponse(Schema):
+    users = fields.List(
+        fields.Tuple(
+            tuple_fields=(
+                fields.Float(),
+                fields.Integer(),
+                fields.Integer(),
+                fields.Integer(),
+                fields.String(),
+                fields.String(),
+            )
+        ))

@@ -6,7 +6,7 @@ from db.models import Document, User, Question, Game, Round, Statistic
 from aiohttp_apispec import request_schema, docs, response_schema, querystring_schema
 from db.schemas import (RoundSchema, UserSchema)
 from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
-                                DocumentSchemaQuerystring)
+                                DocumentSchemaQuerystring, TopSchemaResponse)
 
 
 class DocumentView(web.View):
@@ -59,6 +59,7 @@ class TopView(web.View):
         summary="Get top 10 of players",
         description="Get top 10 of players .... ",
     )
+    @response_schema(TopSchemaResponse)
     async def get(self):
         all_users = await User \
             .join(Statistic) \
