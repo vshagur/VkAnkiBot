@@ -1,8 +1,8 @@
 # server/config/api.yaml
 postgres:
-  database: vkankibot
-  user: postgres
-  password: postgres
+  database: <you db name>
+  user: <you db login>
+  password: <you db password>
   host: localhost
   port: 5432
   minsize: 1
