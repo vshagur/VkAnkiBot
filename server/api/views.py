@@ -1,17 +1,21 @@
 # server/api/views.py
-from random import randint
 from collections import Counter
+from random import randint
+
 from aiohttp import web
-from db.models import Document, User, Question, Game, Round, Statistic
-from aiohttp_apispec import request_schema, docs, response_schema, querystring_schema
-from db.schemas import (RoundSchema, UserSchema, GameSchema)
-from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
-                                DocumentSchemaQuerystring, TopSchemaResponse,
-                                GameSchemaResponse, GameSchemaBase, ResultSchema,
-                                ResultSchemaResponse, QuestionSchemaResponse)
+from aiohttp_apispec import (docs, querystring_schema, request_schema,
+                             response_schema)
+from db.models import Document, Game, Question, Round, Statistic, User
+from db.schemas import GameSchema, RoundSchema, UserSchema
+from server.api.schemas import (DocumentSchemaQuerystring,
+                                DocumentSchemaResponse, GameSchemaBase,
+                                GameSchemaResponse, QuestionSchemaResponse,
+                                ResultSchema, ResultSchemaResponse,
+                                RoundSchemaResponse, TopSchemaResponse)
 
 
 class DocumentView(web.View):
+
     @docs(
         tags=["doc"],
         summary="Get text documet. For example: help page.",
@@ -30,6 +34,7 @@ class DocumentView(web.View):
 
 
 class UserView(web.View):
+
     @docs(
         tags=["user"],
         summary="Creates a new user in the database if there is no such user yet ",
@@ -56,6 +61,7 @@ class UserView(web.View):
 
 
 class TopView(web.View):
+
     @docs(
         tags=["top"],
         summary="Get top 10 of players",
@@ -87,6 +93,7 @@ class TopView(web.View):
 
 
 class GameView(web.View):
+
     @docs(
         tags=["game"],
         summary="Create new game",
@@ -136,6 +143,7 @@ class GameView(web.View):
 
 
 class ResultView(web.View):
+
     @docs(
         tags=["result"],
         summary="Calculate the winners of the game. Return the result.",
@@ -216,6 +224,7 @@ class ResultView(web.View):
 
 
 class QuestionView(web.View):
+
     @docs(
         tags=["quesstion"],
         summary="Get data question",
@@ -247,6 +256,7 @@ class QuestionView(web.View):
 
 
 class RoundView(web.View):
+
     @docs(
         tags=["round"],
         summary="Create new round",
