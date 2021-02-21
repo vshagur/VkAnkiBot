@@ -32,5 +32,9 @@ class TopSchemaResponse(Schema):
         ))
 
 
-class GamesSchemaResponse(UserSchema):
+class GameSchemaBase(Schema):
     game_id = fields.Integer()
+
+
+class GameSchemaResponse(UserSchema, GameSchemaBase):
+    pass

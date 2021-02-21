@@ -7,7 +7,7 @@ from aiohttp_apispec import request_schema, docs, response_schema, querystring_s
 from db.schemas import (RoundSchema, UserSchema, GameSchema)
 from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
                                 DocumentSchemaQuerystring, TopSchemaResponse,
-                                GamesSchemaResponse)
+                                GameSchemaResponse, GameSchemaBase)
 
 
 class DocumentView(web.View):
@@ -92,7 +92,7 @@ class GameView(web.View):
         description="Create new game",
     )
     @request_schema(GameSchema)
-    @response_schema(GamesSchemaResponse)
+    @response_schema(GameSchemaResponse)
     async def post(self):
         data = await self.request.json()
         owner_id = data.get('owner_id')
@@ -108,6 +108,13 @@ class GameView(web.View):
 
         return web.json_response(data)
 
+    @docs(
+        tags=["game"],
+        summary="Update game",
+        description="Update game",
+    )
+    @request_schema(GameSchemaBase)
+    @response_schema(GameSchema)
     async def put(self):
         data = await self.request.json()
         game = await Game.get(data.get('game_id'))
@@ -118,7 +125,7 @@ class GameView(web.View):
         await game.update(status=data.get('status')).apply()
 
         data = {
-            'game_id': game.id,
+            'id': game.id,
             'status': game.status,
             'peer_id': game.peer_id,
             'owner_id': game.owner_id,
