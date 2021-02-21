@@ -219,7 +219,7 @@ class Start(Command):
         user_data = resp.get('response').pop()
 
         data = {
-            'vk_user_id': user_id,
+            'vk_id': user_id,
             'first_name': user_data.get('first_name') or 'noname',
             'last_name': user_data.get('last_name') or 'noname',
         }

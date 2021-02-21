@@ -3,10 +3,20 @@ from random import randint
 from collections import Counter
 from aiohttp import web
 from db.models import Document, User, Question, Game, Round, Statistic
+from aiohttp_apispec import request_schema, docs, response_schema, querystring_schema
+from db.schemas import (RoundSchema, UserSchema)
+from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
+                                DocumentSchemaQuerystring)
 
 
 class DocumentView(web.View):
-
+    @docs(
+        tags=["doc"],
+        summary="Get text documet. For example: help page.",
+        description="Get text documet. For example: help page. .... ",
+    )
+    @querystring_schema(DocumentSchemaQuerystring)
+    @response_schema(DocumentSchemaResponse)
     async def get(self):
         name = self.request.match_info['name']
         text = await Document.select('text').where(Document.name == name).gino.scalar()
@@ -18,27 +28,37 @@ class DocumentView(web.View):
 
 
 class UserView(web.View):
-
+    @docs(
+        tags=["user"],
+        summary="Creates a new user in the database if there is no such user yet ",
+        description="Creates a new user in the database if there is no such user yet ",
+    )
+    @request_schema(UserSchema)
+    @response_schema(UserSchema)
     async def post(self):
         data = await self.request.json()
 
-        vk_user_id = data.get('vk_user_id')
+        vk_id = data.get('vk_id')
 
-        user = await User.select('vk_id').where(User.vk_id == vk_user_id).gino.scalar()
+        user = await User.select('vk_id').where(User.vk_id == vk_id).gino.scalar()
 
         # add user if user is not exist
         if not user:
             await User.create(
-                vk_id=vk_user_id,
+                vk_id=vk_id,
                 first_name=data.get('first_name'),
                 last_name=data.get('last_name')
             )
 
-        return web.json_response({'user_id': vk_user_id})
+        return web.json_response({'vk_id': vk_id})
 
 
 class TopView(web.View):
-
+    @docs(
+        tags=["top"],
+        summary="Get top 10 of players",
+        description="Get top 10 of players .... ",
+    )
     async def get(self):
         all_users = await User \
             .join(Statistic) \
@@ -174,7 +194,11 @@ class ResultView(web.View):
 
 
 class QuestionView(web.View):
-
+    @docs(
+        tags=["quesstion"],
+        summary="Get data question",
+        description=" Get data question .... ",
+    )
     async def get(self):
         # TODO: добавить нормальное получение случайного idx
         # created vshagur@gmail.com, 2021-02-18
@@ -200,13 +224,19 @@ class QuestionView(web.View):
 
 
 class RoundView(web.View):
-
+    @docs(
+        tags=["round"],
+        summary="Create new round",
+        description="Create new round",
+    )
+    @request_schema(RoundSchema)
+    @response_schema(RoundSchemaResponse)
     async def post(self):
         data = await self.request.json()
 
         game_round = await Round.create(
             game_id=data.get('game_id'),
-            winner=data.get('vk_user_id'),
+            winner=data.get('winner'),
             count=data.get('round_id'),
         )
 

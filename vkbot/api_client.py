@@ -53,7 +53,7 @@ class ApiClient:
 
     async def save_round_info(self, game_id, round_id, winner):
         url = urljoin(self.url, f'/rounds')
-        data = {'vk_user_id': winner, 'game_id': game_id, 'round_id': round_id}
+        data = {'winner': winner, 'game_id': game_id, 'round_id': round_id}
 
         return await self.make_request(self.session.post(url, json=data))
 
