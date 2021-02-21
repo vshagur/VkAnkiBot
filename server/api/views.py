@@ -8,7 +8,7 @@ from db.schemas import (RoundSchema, UserSchema, GameSchema)
 from server.api.schemas import (RoundSchemaResponse, DocumentSchemaResponse,
                                 DocumentSchemaQuerystring, TopSchemaResponse,
                                 GameSchemaResponse, GameSchemaBase, ResultSchema,
-                                ResultSchemaResponse, )
+                                ResultSchemaResponse, QuestionSchemaResponse)
 
 
 class DocumentView(web.View):
@@ -219,8 +219,9 @@ class QuestionView(web.View):
     @docs(
         tags=["quesstion"],
         summary="Get data question",
-        description=" Get data question .... ",
+        description="Get data question",
     )
+    @response_schema(QuestionSchemaResponse)
     async def get(self):
         # TODO: добавить нормальное получение случайного idx
         # created vshagur@gmail.com, 2021-02-18
