@@ -32,3 +32,13 @@ class StatisticSchema(Schema):
     user_id = fields.Integer()
     total_games = fields.Integer()
     win_games = fields.Integer()
+
+
+class QuestionSchema(Schema):
+    id = fields.Integer()
+    question_text = fields.String(required=True)
+    answer1_text = fields.String(required=True)
+    answer2_text = fields.String(required=True)
+    answer3_text = fields.String(required=True)
+    correct_id = fields.Integer(required=True)
+    timeout = fields.Integer()

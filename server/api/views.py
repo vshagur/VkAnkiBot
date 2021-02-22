@@ -6,20 +6,22 @@ from aiohttp import web
 from aiohttp_apispec import (docs, querystring_schema, request_schema,
                              response_schema)
 from db.models import Document, Game, Question, Round, Statistic, User
-from db.schemas import GameSchema, RoundSchema, UserSchema
+from db.schemas import GameSchema, QuestionSchema, RoundSchema, UserSchema
 from server.api.schemas import (DocumentSchemaQuerystring,
                                 DocumentSchemaResponse, GameSchemaBase,
                                 GameSchemaResponse, QuestionSchemaResponse,
                                 ResultSchema, ResultSchemaResponse,
-                                RoundSchemaResponse, TopSchemaResponse)
+                                RoundSchemaResponse, TopSchemaResponse,
+                                QuestionSchemaRequest, OkStatusSchemaResponse,
+                                IdSchemaQuerystring, )
 
 
 class DocumentView(web.View):
 
     @docs(
         tags=["doc"],
-        summary="Get text documet. For example: help page.",
-        description="Get text documet. For example: help page. .... ",
+        summary="Get text document. For example: help page.",
+        description="Get text document. For example: help page. .... ",
     )
     @querystring_schema(DocumentSchemaQuerystring)
     @response_schema(DocumentSchemaResponse)
@@ -223,38 +225,6 @@ class ResultView(web.View):
         return web.json_response(data)
 
 
-class QuestionView(web.View):
-
-    @docs(
-        tags=["quesstion"],
-        summary="Get data question",
-        description="Get data question",
-    )
-    @response_schema(QuestionSchemaResponse)
-    async def get(self):
-        # TODO: добавить нормальное получение случайного idx
-        # created vshagur@gmail.com, 2021-02-18
-        db_max = 3
-        idx = randint(1, 3)
-
-        question = await Question.get(idx)
-
-        data = {
-            'question': question.question_text,
-            'answers': [
-                question.answer1_text,
-                question.answer2_text,
-                question.answer3_text
-            ],
-            'correct_idx': question.correct_id,
-            # TODO: добавить в базу значений с timeout
-            # created vshagur@gmail.com, 2021-02-18
-            'timeout': 5,  # move to settings
-        }
-
-        return web.json_response(data)
-
-
 class RoundView(web.View):
 
     @docs(
@@ -274,3 +244,112 @@ class RoundView(web.View):
         )
 
         return web.json_response({'round_id': game_round.id})
+
+
+class QuestionView(web.View):
+
+    @docs(
+        tags=["question"],
+        summary="Get data question",
+        description="Get data question",
+    )
+    @response_schema(QuestionSchemaResponse)
+    async def get(self):
+        # TODO: добавить нормальное получение случайного idx
+        # created vshagur@gmail.com, 2021-02-18
+        MAX_QUESTION_COUNT = 3
+        idx = randint(1, MAX_QUESTION_COUNT)
+
+        question = await Question.get(idx)
+
+        data = {
+            'question': question.question_text,
+            'answers': [
+                question.answer1_text,
+                question.answer2_text,
+                question.answer3_text
+            ],
+            'correct_idx': question.correct_id,
+            'timeout': question.timeout,
+        }
+
+        return web.json_response(data)
+
+    @docs(
+        tags=["question"],
+        summary="Create new question",
+        description="Create new question",
+    )
+    @request_schema(QuestionSchema)
+    async def post(self):
+        data = await self.request.json()
+        question = await Question.create(**data)
+
+        return web.json_response({'id': question.id})
+
+
+class AdminQuestionView(web.View):
+
+    @docs(
+        tags=["question_admin"],
+        summary="Get data question by id",
+        description="Get data question by id",
+    )
+    @request_schema(IdSchemaQuerystring)
+    @response_schema(QuestionSchemaResponse)
+    async def get(self):
+        question_id = self.request.match_info['id']
+        question = await Question.get(int(question_id))
+
+        if question:
+            data = {
+                'question': question.question_text,
+                'answers': [
+                    question.answer1_text,
+                    question.answer2_text,
+                    question.answer3_text
+                ],
+                'correct_idx': question.correct_id,
+                'timeout': question.timeout,
+            }
+
+            return web.json_response(data)
+
+        raise web.HTTPNotFound()
+
+    @docs(
+        tags=["question_admin"],
+        summary="Update data question by id",
+        description="Update data question by id",
+    )
+    @request_schema(QuestionSchemaRequest)
+    @response_schema(OkStatusSchemaResponse)
+    async def put(self):
+        question_id = self.request.match_info['id']
+        question = await Question.get(int(question_id))
+
+        if not question:
+            raise web.HTTPNotFound()
+
+        data = await self.request.json()
+        await question.update(**data).apply()
+
+        return web.json_response({'status': 'ok'})
+
+    @docs(
+        tags=["question_admin"],
+        summary="Delete data question by id",
+        description="Delete data question by id",
+    )
+    @request_schema(IdSchemaQuerystring)
+    @response_schema(OkStatusSchemaResponse)
+    async def delete(self):
+        question_id = self.request.match_info['id']
+        question = await Question.get(int(question_id))
+
+        if not question:
+            raise web.HTTPNotFound()
+
+        await question.delete()
+
+        return web.json_response({'status': 'ok'})

@@ -65,3 +65,23 @@ class QuestionSchemaResponse(GameSchemaBase):
     answers = fields.List(fields.String, validate=validate.Length(equal=MAXQUESTION))
     correct_idx = fields.Integer()
     timeout = fields.Integer()
+
+
+class QuestionSchemaRequest(Schema):
+    question_text = fields.String()
+    answer1_text = fields.String()
+    answer2_text = fields.String()
+    answer3_text = fields.String()
+    correct_id = fields.Integer()
+    timeout = fields.Integer()
+
+
+class OkStatusSchemaResponse(Schema):
+    status = fields.String(
+        required=True,
+        validate=validate.OneOf(['ok', ])
+    )
+
+
+class IdSchemaQuerystring(Schema):
+    id = fields.Integer(required=True)

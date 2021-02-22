@@ -1,6 +1,6 @@
 # server/api/routes.py
-from server.api.views import (DocumentView, GameView, QuestionView, ResultView,
-                              RoundView, TopView, UserView)
+from server.api.views import (AdminQuestionView, DocumentView, GameView, QuestionView,
+                              ResultView, RoundView, TopView, UserView)
 
 
 def setup_routes(app):
@@ -11,3 +11,4 @@ def setup_routes(app):
     app.router.add_view('/rounds', RoundView)
     app.router.add_view('/top', TopView)
     app.router.add_view('/question', QuestionView)
+    app.router.add_view('/admin/question/{id}', AdminQuestionView)
