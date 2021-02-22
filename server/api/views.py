@@ -1,6 +1,6 @@
 # server/api/views.py
 from collections import Counter
-from random import randint
+from random import choice
 
 from aiohttp import web
 from aiohttp_apispec import (docs, querystring_schema, request_schema,
@@ -257,10 +257,8 @@ class QuestionView(web.View):
     async def get(self):
         # TODO: добавить нормальное получение случайного idx
         # created vshagur@gmail.com, 2021-02-18
-        MAX_QUESTION_COUNT = 3
-        idx = randint(1, MAX_QUESTION_COUNT)
-
-        question = await Question.get(idx)
+        ids = await Question.select('id').gino.all()
+        question = await Question.get(choice(ids)['id'])
 
         data = {
             'question': question.question_text,
