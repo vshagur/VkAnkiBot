@@ -1,7 +1,8 @@
 aiohttp==3.7.3
-pytest==6.2.2
-PyYAML==5.4.1
-gino==1.0.1
 aiohttp-apispec ==2.2.1
 alembic==1.5.4
+gino==1.0.1
 psycopg2-binary
+pytest==6.2.2
+pytest-aiohttp==0.3.0
+PyYAML==5.4.1
