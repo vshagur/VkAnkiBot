@@ -7,6 +7,7 @@ from server.api.routes import setup_routes
 from server.api.settings import config
 from time import sleep
 from db.db_client import DbClient
+from db.db_init import init_database
 from aiohttp_apispec import setup_aiohttp_apispec
 from aiohttp_swagger import setup_swagger
 
@@ -40,16 +41,17 @@ def get_app():
 def set_db_client(app, db_config):
     db_client = DbClient(db_config)
     db_client.setup(app)
+    # TODO: узнать, как дождаться инициализаци базы данных при первом запуске
+    # чтобы не возникало ошибок, использование sleep временное решение
+    # created vshagur@gmail.com, 2021-02-19
+    sleep(5)
 
 
 def main():
     app = get_app()
     db_config = get_db_config()
     set_db_client(app, db_config)
-    # TODO: узнать, как дождаться инициализаци базы данных при первом запуске
-    # чтобы не возникало ошибок, использование sleep временное решение
-    # created vshagur@gmail.com, 2021-02-19
-    sleep(5)
+    init_database()
     web.run_app(app)
 
 
