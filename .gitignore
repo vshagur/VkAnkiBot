@@ -2,6 +2,7 @@
 .idea
 server/config/api.yaml
 db/database.env
+db/data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
