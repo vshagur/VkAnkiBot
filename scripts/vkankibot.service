@@ -1,0 +1,21 @@
+[Unit]
+Description=Starts script for VkAnkiBot
+After=syslog.target
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/service.pid
+WorkingDirectory=/home/admin/VkAnkiBot
+User=admin
+Group=unit
+OOMScoreAdjust=-100
+
+ExecStart=/home/admin/VkAnkiBot/scripts/vkankibot.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+TimeoutSec=300
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
