@@ -33,5 +33,10 @@ docker-compose build
 ```
 docker-compose up
 ```
-
+подключиться к серверу с другого теминала
+$ docker-compose exec server /bin/bash
+применить миграции 
+$ alembic upgrade head
+заполнить базу данных
+$ python db/db_init.py
 

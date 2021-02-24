@@ -51,7 +51,6 @@ def main():
     app = get_app()
     db_config = get_db_config()
     set_db_client(app, db_config)
-    init_database()
     web.run_app(app)
 
 
