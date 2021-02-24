@@ -6,8 +6,23 @@ install
 1. установка зависимостей - docker и docker-compose
 2. скачать проект c github
 ```
-git clone git@github.com:vshagur/VkAnkiBot.git
+$ git clone git@github.com:vshagur/VkAnkiBot.git
+$ cd VkAnkiBot/
 ```
+
+первоначальная настрока
+$ cat .env-example > .env
+откройте файл .env в любом редакторе и установите значения 
+переменных окружения - VK_API_KEY и VK_GROUP_ID
+
+cat db/database.env-example > db/database.en
+установите значения переменных окружения -POSTGRES_USER,POSTGRES_PASSWORD, POSTGRES_DB
+
+cat server/config/api.yaml-example > server/config/api.yaml
+установите значения database, user, password
+
+
+
 
 3. запустить 
 ```

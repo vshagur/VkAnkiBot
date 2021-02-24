@@ -1,5 +1,6 @@
 aiohttp==3.7.3
 aiohttp-apispec ==2.2.1
+aiohttp_swagger
 alembic==1.5.4
 gino==1.0.1
 psycopg2-binary
