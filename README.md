@@ -1,7 +1,7 @@
 # VkAnkiBot
 VkAnkiBot - игровой бот для создания викторин в социальной сети "ВКонтакте". 
 
-## DOCUMENTATION
+#### DOCUMENTATION
 
 
 #### Installation
@@ -53,10 +53,10 @@ End your session with the container.
 #### Usage
 
 
-## AUTHORS
+#### AUTHORS
 
 * **Valeriy Shagur**  - [vshagur](https://github.com/vshagur), email: vshagur@gmail.com
 
-## LICENSE
+#### LICENSE
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/vshagur/exgrex-py/blob/docs/LICENSE) file for details
