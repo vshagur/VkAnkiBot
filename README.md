@@ -25,13 +25,13 @@ $ cat server/config/api.yaml-example > server/config/api.yaml
 ```
 
 4. Open the configuration files in your favorite editor and set the values of the environment variables.
-
+```
 Set the values for variables to VK_API_KEY, VK_GROUP_ID in the .env file.
 
 Set the values for variables to POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB in the db/database.en file.
 
 Set the values for variables to database, user, password in the server/config/api.yaml file.
-
+```
 
 5. Start building containers.
 ```
