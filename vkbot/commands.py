@@ -346,9 +346,7 @@ class Grade(Command):
                 return
 
         except (TypeError, json.JSONDecodeError) as err:
-            # TODO: add message
-            # created vshagur@gmail.com, 2021-02-15
-            logger.error(err)
+            logger.error('THE_WRONG_FORMAT_RESPONSE')
             return
 
         # check and add the result to temporary storage
@@ -361,8 +359,7 @@ class Grade(Command):
         if isinstance(resp_result, bool):
 
             if from_id in game.participants:
-                # TODO: change from_id to user name
-                # created vshagur@gmail.com, 2021-02-20
+
                 payload = {
                     'peer_id': peer_id,
                     'random_id': random_id,
