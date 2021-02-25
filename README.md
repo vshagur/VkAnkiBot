@@ -1,10 +1,14 @@
 # VkAnkiBot
-VkAnkiBot - игровой бот для создания викторин в социальной сети "ВКонтакте". 
+VkAnkiBot is a game bot for creating quizzes on the Vkontakte social network.
 
 #### DOCUMENTATION
 
 
 #### Installation
+
+To run the bot, you need a valid account on the Vkontakte social network, a group and a token. 
+You can find out the details in the [documentation](https://vk.com/dev/manuals). 
+
 1. Install [docker](https://docs.docker.com/engine/install/) и [docker-compose](https://docs.docker.com/compose/install/) 
 
 2. Clone the project from github and go to the project directory:
@@ -23,7 +27,9 @@ $ cat server/config/api.yaml-example > server/config/api.yaml
 4. Open the configuration files in your favorite editor and set the values of the environment variables.
 
 Set the values for variables to VK_API_KEY, VK_GROUP_ID in the .env file.
+
 Set the values for variables to POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB in the db/database.en file.
+
 Set the values for variables to database, user, password in the server/config/api.yaml file.
 
 
