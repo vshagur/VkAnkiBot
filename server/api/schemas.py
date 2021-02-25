@@ -1,5 +1,5 @@
-from marshmallow import Schema, fields, validate
 from db.schemas import UserSchema
+from marshmallow import Schema, fields, validate
 
 # TODO: move MAXQUESTION to settings
 # created vshagur@gmail.com, 2021-02-21

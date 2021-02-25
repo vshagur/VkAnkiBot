@@ -1,6 +1,7 @@
 # server/api/routes.py
-from server.api.views import (AdminQuestionView, DocumentView, GameView, QuestionView,
-                              ResultView, RoundView, TopView, UserView)
+from server.api.views import (AdminQuestionView, DocumentView, GameView,
+                              QuestionView, ResultView, RoundView, TopView,
+                              UserView)
 
 
 def setup_routes(app):

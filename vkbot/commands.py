@@ -4,8 +4,8 @@ import json
 from logger.logger import logger
 from vkbot.formatters import (format_game_aborted_messages,
                               format_game_finished_messages,
-                              format_top_players_message,
-                              format_new_game_message)
+                              format_new_game_message,
+                              format_top_players_message)
 from vkbot.keyboard import get_command_keyboard, get_quiz_keyboard
 
 
