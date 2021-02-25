@@ -1,15 +1,14 @@
 # server/api/main.py
 import os
+from time import sleep
 
 from aiohttp import web
+from aiohttp_apispec import setup_aiohttp_apispec
+from aiohttp_swagger import setup_swagger
+from db.db_client import DbClient
 from logger.logger import logger
 from server.api.routes import setup_routes
 from server.api.settings import config
-from time import sleep
-from db.db_client import DbClient
-from db.db_init import init_database
-from aiohttp_apispec import setup_aiohttp_apispec
-from aiohttp_swagger import setup_swagger
 
 
 def get_db_config():

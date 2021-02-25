@@ -9,11 +9,11 @@ from db.models import Document, Game, Question, Round, Statistic, User
 from db.schemas import GameSchema, QuestionSchema, RoundSchema, UserSchema
 from server.api.schemas import (DocumentSchemaQuerystring,
                                 DocumentSchemaResponse, GameSchemaBase,
-                                GameSchemaResponse, QuestionSchemaResponse,
-                                ResultSchema, ResultSchemaResponse,
-                                RoundSchemaResponse, TopSchemaResponse,
-                                QuestionSchemaRequest, OkStatusSchemaResponse,
-                                IdSchemaQuerystring, )
+                                GameSchemaResponse, IdSchemaQuerystring,
+                                OkStatusSchemaResponse, QuestionSchemaRequest,
+                                QuestionSchemaResponse, ResultSchema,
+                                ResultSchemaResponse, RoundSchemaResponse,
+                                TopSchemaResponse)
 
 
 class DocumentView(web.View):

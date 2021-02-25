@@ -10,7 +10,6 @@ from enum import Enum
 
 MAX_BUTTONS_ON_LINE = 5
 MAX_DEFAULT_LINES = 10
-MAX_INLINE_LINES = 6
 
 
 class VkKeyboardColor(Enum):
@@ -56,6 +55,7 @@ class VkKeyboard(object):
 
     def get_keyboard(self):
         """ Получить json клавиатуры """
+
         return json.dumps(self.keyboard)
 
     @classmethod
@@ -65,6 +65,7 @@ class VkKeyboard(object):
         """
         keyboard = cls()
         keyboard.keyboard['buttons'] = []
+
         return keyboard.get_keyboard()
 
     def add_button(self, label, color=VkKeyboardColor.SECONDARY, payload=None):
@@ -102,24 +103,35 @@ class VkKeyboard(object):
             }
         })
 
+    def add_line(self):
+
+        if len(self.lines) >= MAX_DEFAULT_LINES:
+            raise ValueError(f'Max {MAX_DEFAULT_LINES} lines for default keyboard')
+
+        self.lines.append([])
+
 
 def get_command_keyboard():
     keyboard = VkKeyboard(one_time=True)
+
     keyboard.add_button(
         'Help',
         color=VkKeyboardColor.SECONDARY,
         payload={'command': '/help'}
     )
+
     keyboard.add_button(
         'Best players',
         color=VkKeyboardColor.SECONDARY,
         payload={'command': '/top'}
     )
+
     keyboard.add_button(
         'Start the game',
         color=VkKeyboardColor.NEGATIVE,
         payload={'command': '/new'}
     )
+
     return keyboard
 
 
@@ -138,13 +150,15 @@ def get_quiz_keyboard(user_id, game_id, answers, correct_idx, round):
         keyboard.add_button(
             answer,
             color=VkKeyboardColor.SECONDARY,
+
             payload={
                 'command': '/grade',
                 'game_id': game_id,
                 'result': result,
-                'round':round,
+                'round': round,
             }
         )
+        keyboard.add_line()
 
     # кнопка для остановки игры
     keyboard.add_button(

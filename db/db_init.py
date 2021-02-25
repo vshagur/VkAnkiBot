@@ -1,6 +1,7 @@
-import psycopg2
-import os
 import csv
+import os
+
+import psycopg2
 
 TIMEOUT = 10
 

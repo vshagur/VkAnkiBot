@@ -1,5 +1,9 @@
 from gino import Gino
 
+# TODO: move TIMEOUT to settings
+# created vshagur@gmail.com, 2021-02-25
+TIMEOUT = 30
+
 db = Gino()
 
 
@@ -20,9 +24,7 @@ class Question(db.Model):
     answer2_text = db.Column(db.Unicode())
     answer3_text = db.Column(db.Unicode())
     correct_id = db.Column(db.Integer())
-    # TODO: change default value for timeout == 30
-    # created vshagur@gmail.com, 2021-02-18
-    timeout = db.Column(db.Integer(), default=5)
+    timeout = db.Column(db.Integer(), default=TIMEOUT)
 
 
 class Round(db.Model):
