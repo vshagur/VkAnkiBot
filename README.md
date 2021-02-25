@@ -58,6 +58,39 @@ End your session with the container.
 
 #### Usage
 
+Run.
+
+To start the bot, run the command:
+
+```
+$ docker-compose up -d
+```
+
+Manage.
+
+You can manage your bot data using the admin panel. It is available at 
+
+```
+\<you host\>:8080/api/doc
+```
+
+Tests.
+
+```
+$ python3 -m pytest tests/
+```
+
+#### Built With
+
+* [aiohttp](https://docs.aiohttp.org/en/stable/) - Asynchronous HTTP Client/Server for asyncio and Python.
+* [aiohttp-apispec](https://pypi.org/project/aiohttp-apispec/) - Build and document REST APIs with aiohttp and apispec
+* [Alembic](https://alembic.sqlalchemy.org/en/latest/) - Alembic is a lightweight database migration tool for usage with the SQLAlchemy Database Toolkit for Python.
+* [gino](https://python-gino.org/) - GINO Is Not ORM - is a lightweight asynchronous ORM built on top of SQLAlchemy core for Python asyncio.
+* [Pytest](https://docs.pytest.org/en/latest/) - The pytest framework makes it easy to write small tests, yet scales to support complex functional testing for applications and libraries.
+* [aiohttp-swagger](https://aiohttp-swagger.readthedocs.io/en/latest/) - Swagger API Documentation builder for aiohttp server
+* [PostgreSQL](https://www.postgresql.org/) - The World's Most Advanced Open Source Relational Database
+* [Docker](https://www.docker.com/) - Docker is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called containers.
+
 
 #### AUTHORS
 
