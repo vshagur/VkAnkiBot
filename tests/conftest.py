@@ -1,7 +1,7 @@
 import pytest
-from gino import GinoEngine
+
+from db.db_utils import add_data_to_questions, clear_table, create_connection
 from server.api.main import get_app, get_db_config, set_db_client
-import functools
 
 
 @pytest.fixture()
@@ -16,6 +16,31 @@ def app():
 async def api_test_client(test_client, app):
     client = await test_client(app)
     yield client
+
+
+@pytest.fixture
+def restore_questions_tables():
+    yield
+    cur, conn = create_connection()
+    clear_table(cur, 'questions')
+    add_data_to_questions(cur, 'db/QuestionsEnRuDictionaryTop1000.csv')
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+@pytest.fixture
+def questions_data():
+    # TODO: check creating for not default timeout
+    # created vshagur@gmail.com, 2021-02-26
+    return {
+        "timeout": 30,
+        "correct_id": 1,
+        "answer1_text": "human123456789",
+        "answer3_text": "dog",
+        "question_text": "who are you?",
+        "answer2_text": "cat"
+    }
 
 # @pytest.fixture(autouse=True)
 # async def db_transaction(api_test_client):
