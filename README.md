@@ -77,7 +77,7 @@ You can manage your bot data using the admin panel. It is available at
 Tests.
 
 ```
-$ python3 -m pytest tests/
+$ docker-compose run --rm server /bin/bash -c pytest --disable-warnings -vv /tests
 ```
 
 #### Built With
