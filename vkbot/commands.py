@@ -14,7 +14,7 @@ class Game:
         self.game_id = game_id
         self.user_id = user_id  # game owner
         self.round_id = round_id
-        self.participants = {}  # key - user_id, value - (data, result)
+        self.participants = {}  # key - user_id, value - (date, result)
         self.game_players = set()
 
     def new_round(self):
