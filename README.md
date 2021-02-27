@@ -56,17 +56,28 @@ $ python db/db_init.py
 ```
 End your session with the container. 
 
-#### Usage
+### Usage
 
-Run.
+#### Run.
 
 To start the bot, run the command:
 
 ```
 $ docker-compose up -d
 ```
+#### Game.
 
-Manage.
+After adding to the conversation, the user must send a message with the text "/start" to register him as a player. The game is controlled using the "menu" keyboard. You can learn about the rules of the game from the [file](https://github.com/vshagur/VkAnkiBot/blob/main/db/man.txt). 
+```
+List of basic commands:
+ "/new" - create a new game
+ "/abort" - end the current game
+ "/help" - show the rules of the game
+ "/top" - show statistics of top 10 players
+ ```
+ In response to messages with any other text, the bot will send a keyboard with a menu. 
+
+#### Manage.
 
 You can manage your bot data using the admin panel. It is available at 
 
@@ -74,7 +85,7 @@ You can manage your bot data using the admin panel. It is available at
 \<you host\>:8080/api/doc
 ```
 
-Tests.
+#### Tests.
 
 ```
 $ docker-compose run --rm server /bin/bash -c pytest --disable-warnings -vv /tests
