@@ -1,5 +1,12 @@
 # VkAnkiBot
 VkAnkiBot is a game bot for creating quizzes on the Vkontakte social network.
+[Screenshots](https://github.com/vshagur/VkAnkiBot/tree/main/docs/screenshots).
+
+[Bot page on VKontakte](https://vk.com/club202352983). 
+
+[Link-invitation to the current chat with the game](https://vk.me/join/Zh7_uCX4Wf4JXF57BfBG6CIM1wo5Ncay1f4=).
+
+**Warning: the bot will be guaranteed to work until 03/10/2021. After this date, the bot will be terminated.**
 
 #### DOCUMENTATION
 
